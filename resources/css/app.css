@@ -6,7 +6,7 @@
 /* Vivo Brand Fonts */
 @font-face {
     font-family: 'Vivo';
-    src: url('https://vair.test/fonts/vivo-Regular.ttf') format('truetype');
+    src: url('https://vivo.uplive.at/fonts/vivo-Regular.ttf') format('truetype');
     font-weight: 400;
     font-style: normal;
     font-display: swap;
@@ -14,7 +14,7 @@
 
 @font-face {
     font-family: 'Vivo';
-    src: url('https://vair.test/fonts/vivo-Light.ttf') format('truetype');
+    src: url('https://vivo.uplive.at/fonts/vivo-Light.ttf') format('truetype');
     font-weight: 300;
     font-style: normal;
     font-display: swap;
@@ -22,7 +22,7 @@
 
 @font-face {
     font-family: 'Vivo';
-    src: url('https://vair.test/fonts/vivo-Medium.ttf') format('truetype');
+    src: url('https://vivo.uplive.at/fonts/vivo-Medium.ttf') format('truetype');
     font-weight: 500;
     font-style: normal;
     font-display: swap;
@@ -30,7 +30,7 @@
 
 @font-face {
     font-family: 'Vivo';
-    src: url('https://vair.test/fonts/vivo-Bold.ttf') format('truetype');
+    src: url('https://vivo.uplive.at/fonts/vivo-Bold.ttf') format('truetype');
     font-weight: 700;
     font-style: normal;
     font-display: swap;
@@ -38,7 +38,7 @@
 
 @font-face {
     font-family: 'Vivo';
-    src: url('https://vair.test/fonts/vivo-Heavy.ttf') format('truetype');
+    src: url('https://vivo.uplive.at/fonts/vivo-Heavy.ttf') format('truetype');
     font-weight: 900;
     font-style: normal;
     font-display: swap;
