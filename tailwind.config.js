@@ -98,12 +98,18 @@ export default {
       },
       fontFamily: {
         sans: [
-          "Roboto",
+          "Vivo",
           "system-ui",
           "-apple-system",
           "BlinkMacSystemFont",
           "Segoe UI",
           "sans-serif"
+        ],
+        mono: [
+          "JetBrains Mono",
+          "Menlo",
+          "Monaco",
+          "monospace"
         ],
       },
       fontSize: {

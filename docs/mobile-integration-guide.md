@@ -139,7 +139,7 @@ interface RoutePlan {
 #### React Native Example
 ```typescript
 class AuthService {
-  private baseURL = 'https://li-council.test/api';
+  private baseURL = 'https://vair.test/api';
   private token: string | null = null;
 
   async login(username: string, password: string): Promise<LoginResponse> {
@@ -185,7 +185,7 @@ class AuthService {
 #### Flutter Example
 ```dart
 class AuthService {
-  static const String baseURL = 'https://li-council.test/api';
+  static const String baseURL = 'https://vair.test/api';
   String? _token;
 
   Future<LoginResponse> login(String username, String password) async {
@@ -461,7 +461,7 @@ const config = {
     timeout: 10000,
   },
   production: {
-    baseURL: 'https://li-council.test/api',
+    baseURL: 'https://vair.test/api',
     timeout: 15000,
   },
 };

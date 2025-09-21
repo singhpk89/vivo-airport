@@ -4,8 +4,8 @@
 The LI Council API provides comprehensive endpoints for managing field activities, promoter data, and route plans. This documentation covers both mobile-specific endpoints and admin panel functionality.
 
 **Base URLs:**
-- **Mobile API**: `https://li-council.test/api/mobile`
-- **Admin API**: `https://li-council.test/api`
+- **Mobile API**: `https://vair.test/api/mobile`
+- **Admin API**: `https://vair.test/api`
 
 **Authentication:** Bearer Token (Laravel Sanctum)
 

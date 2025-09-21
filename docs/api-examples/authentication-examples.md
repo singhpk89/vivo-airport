@@ -32,7 +32,7 @@ const LoginScreen: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('https://li-council.test/api/mobile/auth/login', {
+      const response = await fetch('https://vair.test/api/mobile/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -131,7 +131,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse('https://li-council.test/api/mobile/auth/login'),
+        Uri.parse('https://vair.test/api/mobile/auth/login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'username': _usernameController.text,
@@ -293,7 +293,7 @@ const ActivityForm: React.FC = () => {
         processedData.far_shot = await convertImageToBase64(images.far_shot);
       }
 
-      const response = await fetch('https://li-council.test/api/mobile/activities', {
+      const response = await fetch('https://vair.test/api/mobile/activities', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -508,7 +508,7 @@ class _ActivityFormState extends State<ActivityForm> {
       }
 
       final response = await http.post(
-        Uri.parse('https://li-council.test/api/mobile/activities'),
+        Uri.parse('https://vair.test/api/mobile/activities'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -700,7 +700,7 @@ interface APIResponse<T = any> {
 }
 
 class APIService {
-  private baseURL = 'https://li-council.test/api';
+  private baseURL = 'https://vair.test/api';
   private token: string | null = null;
 
   constructor() {
@@ -826,7 +826,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class APIService {
-  static const String baseURL = 'https://li-council.test/api';
+  static const String baseURL = 'https://vair.test/api';
   String? _token;
 
   APIService() {

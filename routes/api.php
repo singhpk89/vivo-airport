@@ -249,7 +249,38 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::put('{key}', [SettingController::class, 'update']);
         Route::delete('{key}', [SettingController::class, 'destroy']);
     });
+
+    // Feedback Management Routes
+    Route::prefix('feedbacks')->group(function () {
+        Route::get('/', [\App\Http\Controllers\FeedbackController::class, 'index']);
+        Route::post('/', [\App\Http\Controllers\FeedbackController::class, 'store']);
+        Route::get('{feedback}', [\App\Http\Controllers\FeedbackController::class, 'show']);
+        Route::put('{feedback}', [\App\Http\Controllers\FeedbackController::class, 'update']);
+        Route::delete('{feedback}', [\App\Http\Controllers\FeedbackController::class, 'destroy']);
+        Route::post('{feedback}/respond', [\App\Http\Controllers\FeedbackController::class, 'respond']);
+    });
 });
 
 // Public Settings Routes (no authentication required)
 Route::get('public-settings', [SettingController::class, 'publicSettings']);
+
+// Public Feedback Routes (no authentication required for visitor feedback)
+Route::post('vivo-experience-feedback', [\App\Http\Controllers\FeedbackController::class, 'storeVivoExperience']);
+Route::post('feedback', [\App\Http\Controllers\FeedbackController::class, 'store']);
+
+// Mobile App Routes for Promoter Activity Tracking (no authentication for now - can be secured later)
+Route::prefix('mobile/promoter-activity')->group(function () {
+    Route::post('login', [\App\Http\Controllers\PromoterActivityController::class, 'login']);
+    Route::post('logout', [\App\Http\Controllers\PromoterActivityController::class, 'logout']);
+    Route::post('upload-photo', [\App\Http\Controllers\PromoterActivityController::class, 'uploadPhoto']);
+    Route::get('activity', [\App\Http\Controllers\PromoterActivityController::class, 'getActivity']);
+    Route::post('sync', [\App\Http\Controllers\PromoterActivityController::class, 'syncData']);
+});
+
+// Admin Dashboard Routes for Promoter Activity Reports (protected)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::prefix('admin/promoter-reports')->group(function () {
+        Route::get('dashboard', [\App\Http\Controllers\PromoterActivityController::class, 'getDashboardReport']);
+        Route::get('activity/{id}', [\App\Http\Controllers\PromoterActivityController::class, 'getActivityDetails']);
+    });
+});

@@ -3,7 +3,7 @@
 require_once 'vendor/autoload.php';
 
 // Test the bulk update status API endpoint with viewer credentials
-$baseUrl = 'https://li-council.test';
+$baseUrl = 'https://vair.test';
 
 // Login as viewer to get token
 $loginResponse = file_get_contents($baseUrl . '/api/auth/login', false, stream_context_create([

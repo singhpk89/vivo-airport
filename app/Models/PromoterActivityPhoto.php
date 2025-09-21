@@ -1,0 +1,79 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
+
+class PromoterActivityPhoto extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'promoter_activity_id',
+        'photo_type',
+        'file_path',
+        'file_name',
+        'mime_type',
+        'file_size',
+        'latitude',
+        'longitude',
+        'captured_at',
+        'description',
+        'is_synced',
+        'synced_at',
+    ];
+
+    protected $casts = [
+        'captured_at' => 'datetime',
+        'synced_at' => 'datetime',
+        'latitude' => 'decimal:8',
+        'longitude' => 'decimal:8',
+        'is_synced' => 'boolean',
+    ];
+
+    /**
+     * Get the activity that owns this photo.
+     */
+    public function activity(): BelongsTo
+    {
+        return $this->belongsTo(PromoterActivity::class, 'promoter_activity_id');
+    }
+
+    /**
+     * Get the full URL of the photo.
+     */
+    public function getUrlAttribute(): string
+    {
+        return Storage::url($this->file_path);
+    }
+
+    /**
+     * Mark photo as synced.
+     */
+    public function markAsSynced(): void
+    {
+        $this->update([
+            'is_synced' => true,
+            'synced_at' => now(),
+        ]);
+    }
+
+    /**
+     * Scope for specific photo type.
+     */
+    public function scopeOfType($query, $type)
+    {
+        return $query->where('photo_type', $type);
+    }
+
+    /**
+     * Scope for unsynced photos.
+     */
+    public function scopeUnsynced($query)
+    {
+        return $query->where('is_synced', false);
+    }
+}

@@ -28,7 +28,10 @@ import ActivityRecceCreate from './pages/ActivityRecceCreate';
 import ActivityRecceEdit from './pages/ActivityRecceEdit';
 import ActivityRecceView from './pages/ActivityRecceView';
 import ActivityRecceImport from './pages/ActivityRecceImport';
+import FeedbackApp from './pages/FeedbackApp';
 import PhotoGallery from './pages/PhotoGallery';
+import PromoterActivityDashboard from './pages/PromoterActivityDashboard';
+import PromoterActivityDetails from './pages/PromoterActivityDetails';
 import Settings from './pages/Settings';
 import Login from './auth/Login';
 import Register from './auth/Register';
@@ -175,6 +178,18 @@ const AdminPanelContent = () => {
           <ProtectedRoute requiredPermission="activity_recces.create">
             <AppLayout>
               <ActivityRecceImport />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Feedback Management Routes */}
+      <Route
+        path="/admin/feedback"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <FeedbackApp />
             </AppLayout>
           </ProtectedRoute>
         }
@@ -336,6 +351,30 @@ const AdminPanelContent = () => {
           <ProtectedRoute requiredPermission="promoters.import">
             <AppLayout>
               <PromoterImport />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Promoter Activity Dashboard */}
+      <Route
+        path="/admin/promoter-activity"
+        element={
+          <ProtectedRoute requiredPermission="promoters.view">
+            <AppLayout>
+              <PromoterActivityDashboard />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Promoter Activity Details */}
+      <Route
+        path="/admin/promoter-activity/:id"
+        element={
+          <ProtectedRoute requiredPermission="promoters.view">
+            <AppLayout>
+              <PromoterActivityDetails />
             </AppLayout>
           </ProtectedRoute>
         }

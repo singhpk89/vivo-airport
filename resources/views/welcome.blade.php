@@ -22,10 +22,6 @@
     <meta name="twitter:title" content="{{ $settings['app_name'] ?? config('app.name', 'GICWP - V2') }}">
     <meta name="twitter:description" content="{{ $settings['app_name'] ?? config('app.name', 'GICWP - V2') }} - Administrative Panel">
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
-
     <!-- Styles / Scripts -->
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
         @viteReactRefresh
@@ -37,7 +33,7 @@
 
                 :root,
                 :host {
-                    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+                    --font-sans: 'Vivo', ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
                     --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
                     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
                     --color-red-50: oklch(.971 .013 17.38);

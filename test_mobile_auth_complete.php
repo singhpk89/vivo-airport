@@ -55,8 +55,8 @@ function makeAPICall($url, $data)
     ];
 }
 
-$apiUrl = 'https://li-council.test/api/promoter/login';
-$logoutUrl = 'https://li-council.test/api/promoter/logout';
+$apiUrl = 'https://vair.test/api/promoter/login';
+$logoutUrl = 'https://vair.test/api/promoter/logout';
 
 echo "🧪 TEST SCENARIOS\n";
 echo "================\n\n";

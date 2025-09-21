@@ -33,7 +33,8 @@ import {
   CheckCircle,
   XCircle,
   Camera,
-  Images
+  Images,
+  BrainCircuit
 } from 'lucide-react';
 import { cn } from "../../lib/utils";
 import { Button } from '../ui/Button';
@@ -111,6 +112,38 @@ const navigationItems = [
   },
   {
     type: 'divider',
+    id: 'activity-divider',
+    label: 'Activity Management'
+  },
+  {
+    title: 'Activity Management',
+    icon: Activity,
+    items: [
+      {
+        title: 'Promoters',
+        url: '/acl/promoters',
+        icon: UserCheck,
+        permission: 'promoters.view',
+        menuKey: 'promoters'
+      },
+      {
+        title: 'Promoter Activity',
+        url: '/admin/promoter-activity',
+        icon: Activity,
+        permission: 'users.view',
+        menuKey: 'promoter-activity'
+      },
+      {
+        title: 'User Feedback',
+        url: '/admin/feedback',
+        icon: MessageSquare,
+        // permission: 'feedback.view',
+        menuKey: 'feedback'
+      }
+    ]
+  },
+  {
+    type: 'divider',
     id: 'management-divider',
     label: 'User Management'
   },
@@ -131,13 +164,6 @@ const navigationItems = [
         icon: MapPin,
         permission: 'users.view',
         menuKey: 'user-states'
-      },
-      {
-        title: 'Promoters',
-        url: '/acl/promoters',
-        icon: UserCheck,
-        permission: 'promoters.view',
-        menuKey: 'promoters'
       },
       {
         title: 'Roles',

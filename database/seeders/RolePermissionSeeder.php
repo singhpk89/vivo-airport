@@ -80,6 +80,13 @@ class RolePermissionSeeder extends Seeder
             ['name' => 'activity_recces.delete', 'display_name' => 'Delete Activity Recces', 'description' => 'Can delete activity recces', 'module' => 'activity_recces'],
             ['name' => 'activity_recces.approve', 'display_name' => 'Approve Activity Recces', 'description' => 'Can approve or reject activity recces', 'module' => 'activity_recces'],
 
+            // Feedback Management (Activity Management Sub-section)
+            ['name' => 'feedback.view', 'display_name' => 'View Feedback', 'description' => 'Can view feedback submissions and responses', 'module' => 'feedback'],
+            ['name' => 'feedback.create', 'display_name' => 'Create Feedback', 'description' => 'Can create new feedback entries', 'module' => 'feedback'],
+            ['name' => 'feedback.edit', 'display_name' => 'Edit Feedback', 'description' => 'Can edit feedback responses and details', 'module' => 'feedback'],
+            ['name' => 'feedback.delete', 'display_name' => 'Delete Feedback', 'description' => 'Can delete feedback entries', 'module' => 'feedback'],
+            ['name' => 'feedback.respond', 'display_name' => 'Respond to Feedback', 'description' => 'Can respond to feedback submissions', 'module' => 'feedback'],
+
             // Settings
             ['name' => 'settings.view', 'display_name' => 'View Settings', 'description' => 'Can view system settings', 'module' => 'settings'],
             ['name' => 'settings.edit', 'display_name' => 'Edit Settings', 'description' => 'Can modify system settings', 'module' => 'settings'],
@@ -121,6 +128,22 @@ class RolePermissionSeeder extends Seeder
             'description' => 'Basic user access with limited permissions'
         ]);
 
+        // Create Agency Role
+        $agencyRole = Role::firstOrCreate([
+            'name' => 'agency'
+        ], [
+            'display_name' => 'Agency',
+            'description' => 'Complete access to Activity Management and Dashboard'
+        ]);
+
+        // Create Agency View Role
+        $agencyViewRole = Role::firstOrCreate([
+            'name' => 'agency_view'
+        ], [
+            'display_name' => 'Agency View',
+            'description' => 'View and export access to Activity Management and Dashboard'
+        ]);
+
         // Assign permissions to roles
 
         // Super Admin gets all permissions
@@ -151,7 +174,11 @@ class RolePermissionSeeder extends Seeder
             'promoters.edit',
             'activity_recces.view',
             'activity_recces.edit',
-            'activity_recces.approve'
+            'activity_recces.approve',
+            'feedback.view',
+            'feedback.create',
+            'feedback.edit',
+            'feedback.respond'
         ])->pluck('id');
         $moderatorRole->permissions()->sync($moderatorPermissions);
 
@@ -162,8 +189,69 @@ class RolePermissionSeeder extends Seeder
             'products.view',
             'route_plans.view',
             'promoters.view',
-            'activity_recces.view'
+            'activity_recces.view',
+            'feedback.view'
         ])->pluck('id');
         $userRole->permissions()->sync($userPermissions);
+
+        // Agency gets complete access to Activity Management and Dashboard
+        $agencyPermissions = Permission::whereIn('name', [
+            // Dashboard access
+            'dashboard.view',
+
+            // Activity Management - Complete access
+            'promoters.view',
+            'promoters.create',
+            'promoters.edit',
+            'promoters.delete',
+            'promoters.assign',
+
+            'activity_recces.view',
+            'activity_recces.create',
+            'activity_recces.edit',
+            'activity_recces.delete',
+            'activity_recces.approve',
+
+            'feedback.view',
+            'feedback.create',
+            'feedback.edit',
+            'feedback.delete',
+            'feedback.respond',
+
+            'route_plans.view',
+            'route_plans.create',
+            'route_plans.edit',
+            'route_plans.delete',
+            'route_plans.import',
+            'route_plans.export',
+
+            // Analytics and Reports
+            'analytics.view',
+            'analytics.export',
+            'reports.view',
+            'reports.create',
+            'reports.export'
+        ])->pluck('id');
+        $agencyRole->permissions()->sync($agencyPermissions);
+
+        // Agency View gets view and export access to Activity Management and Dashboard
+        $agencyViewPermissions = Permission::whereIn('name', [
+            // Dashboard access
+            'dashboard.view',
+
+            // Activity Management - View and Export only
+            'promoters.view',
+            'activity_recces.view',
+            'feedback.view',
+            'route_plans.view',
+            'route_plans.export',
+
+            // Analytics and Reports - View and Export only
+            'analytics.view',
+            'analytics.export',
+            'reports.view',
+            'reports.export'
+        ])->pluck('id');
+        $agencyViewRole->permissions()->sync($agencyViewPermissions);
     }
 }

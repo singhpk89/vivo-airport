@@ -9,7 +9,7 @@ info:
     `Authorization: Bearer {your-token-here}`
 
     ## Base URL
-    - Production: `https://li-council.test/api`
+    - Production: `https://vair.test/api`
     - Development: `http://localhost:8000/api`
 
     ## Documentation
@@ -20,7 +20,7 @@ info:
     email: support@li-council.com
 
 servers:
-  - url: https://li-council.test/api
+  - url: https://vair.test/api
     description: Production server
   - url: http://localhost:8000/api
     description: Development server

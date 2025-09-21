@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vivo Font Test</title>
+    <style>
+        @font-face {
+            font-family: 'Vivo';
+            src: url('https://vair.test/fonts/vivo-Regular.ttf') format('truetype');
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'Vivo';
+            src: url('https://vair.test/fonts/vivo-Bold.ttf') format('truetype');
+            font-weight: 700;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'Vivo';
+            src: url('https://vair.test/fonts/vivo-Medium.ttf') format('truetype');
+            font-weight: 500;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        body {
+            font-family: 'Vivo', Arial, sans-serif;
+            margin: 40px;
+            line-height: 1.6;
+        }
+
+        .font-test {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .regular { font-weight: 400; }
+        .medium { font-weight: 500; }
+        .bold { font-weight: 700; }
+
+        .large { font-size: 32px; }
+        .normal { font-size: 16px; }
+        .small { font-size: 14px; }
+    </style>
+</head>
+<body>
+    <h1 class="large bold">Vivo Font Test Page</h1>
+
+    <div class="font-test">
+        <h2 class="medium">Regular Weight (400)</h2>
+        <p class="regular large">This is Vivo Regular at 32px</p>
+        <p class="regular normal">This is Vivo Regular at 16px</p>
+        <p class="regular small">This is Vivo Regular at 14px</p>
+    </div>
+
+    <div class="font-test">
+        <h2 class="medium">Medium Weight (500)</h2>
+        <p class="medium large">This is Vivo Medium at 32px</p>
+        <p class="medium normal">This is Vivo Medium at 16px</p>
+        <p class="medium small">This is Vivo Medium at 14px</p>
+    </div>
+
+    <div class="font-test">
+        <h2 class="medium">Bold Weight (700)</h2>
+        <p class="bold large">This is Vivo Bold at 32px</p>
+        <p class="bold normal">This is Vivo Bold at 16px</p>
+        <p class="bold small">This is Vivo Bold at 14px</p>
+    </div>
+
+    <div class="font-test">
+        <h2 class="medium">Font Loading Test</h2>
+        <p>If you see distinctive Vivo fonts above, they are loading correctly.</p>
+        <p>Compare with this Arial text: <span style="font-family: Arial;">Arial font for comparison</span></p>
+    </div>
+
+    <script>
+        // Check if fonts are loaded
+        document.fonts.ready.then(function() {
+            console.log('All fonts have loaded');
+
+            // Check if Vivo font is available
+            if (document.fonts.check('16px Vivo')) {
+                console.log('Vivo font is available');
+                document.body.style.backgroundColor = '#e8f5e8';
+            } else {
+                console.log('Vivo font is NOT available');
+                document.body.style.backgroundColor = '#ffe8e8';
+            }
+        });
+    </script>
+</body>
+</html>

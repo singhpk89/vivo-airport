@@ -1053,7 +1053,7 @@ All list endpoints support pagination:
 ## Contact & Support
 
 For API support and questions:
-- **Environment**: Production API available at `https://li-council.test/api`
+- **Environment**: Production API available at `https://vair.test/api`
 - **Documentation Updates**: This documentation is updated with each API version
 - **Version**: v1.0.0
 

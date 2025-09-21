@@ -3,7 +3,7 @@
 // Test the mobile login API for duplicate login prevention
 // This script simulates API calls to test the new functionality
 
-$apiUrl = 'https://li-council.test/api/promoter/login';
+$apiUrl = 'https://vair.test/api/promoter/login';
 
 // Test data
 $loginData = [

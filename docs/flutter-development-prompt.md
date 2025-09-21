@@ -419,7 +419,7 @@ import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  static const String baseUrl = 'https://li-council.test/api';
+  static const String baseUrl = 'https://vair.test/api';
   static const String mobileBaseUrl = '$baseUrl/mobile';
   
   late Dio _dio;

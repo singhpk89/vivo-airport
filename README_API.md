@@ -45,7 +45,7 @@ When using AI MCP tools to generate mobile app code, provide these resources:
 
 1. **Main Documentation**: Link to `API_DOCUMENTATION.md`
 2. **OpenAPI Specification**: Link to `openapi.yaml`
-3. **Base URL**: `https://li-council.test/api`
+3. **Base URL**: `https://vair.test/api`
 
 ### Example AI Prompts
 ```
@@ -86,7 +86,7 @@ Include:
 
 ### Production
 ```
-Base URL: https://li-council.test/api
+Base URL: https://vair.test/api
 Authentication: Bearer Token (Sanctum)
 ```
 

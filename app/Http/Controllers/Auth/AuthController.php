@@ -287,6 +287,13 @@ class AuthController extends Controller
                 'module' => 'promoters',
             ],
             [
+                'name' => 'Promoter Activity',
+                'href' => '/admin/promoter-activity',
+                'icon' => 'Activity',
+                'permission' => 'users.view',
+                'module' => 'promoter-activity',
+            ],
+            [
                 'name' => 'Route Plans',
                 'href' => '/route-plans',
                 'icon' => 'Route',

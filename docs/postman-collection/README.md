@@ -17,8 +17,8 @@ Set up the following environment variables in Postman:
 
 | Variable | Description | Example Value |
 |----------|-------------|---------------|
-| `base_url` | API base URL | `https://li-council.test/api` |
-| `mobile_base_url` | Mobile API base URL | `https://li-council.test/api/mobile` |
+| `base_url` | API base URL | `https://vair.test/api` |
+| `mobile_base_url` | Mobile API base URL | `https://vair.test/api/mobile` |
 | `auth_token` | Bearer token for authentication | `{{auth_token}}` (auto-set after login) |
 | `promoter_id` | Current promoter ID | `{{promoter_id}}` (auto-set after login) |
 
@@ -310,8 +310,8 @@ newman run LI_Council_API.postman_collection.json \
 ### Environment Setup
 ```bash
 # Set environment variables
-export BASE_URL="https://li-council.test/api"
-export MOBILE_BASE_URL="https://li-council.test/api/mobile"
+export BASE_URL="https://vair.test/api"
+export MOBILE_BASE_URL="https://vair.test/api/mobile"
 
 # Run tests with environment
 newman run collection.json \

@@ -136,7 +136,7 @@ interface APIResponse<T = any> {
 }
 
 class APIClient {
-  private baseURL = 'https://li-council.test/api';
+  private baseURL = 'https://vair.test/api';
   private token: string | null = null;
 
   constructor() {

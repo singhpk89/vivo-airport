@@ -6,7 +6,7 @@
 - [x] Scaffold the Project - Vite React TypeScript project created
 
 ## Server Information
-- **Laravel Server**: Already running and available via Laravel Herd at https://li-council.test
+- **Laravel Server**: Already running and available via Laravel Herd at https://vair.test
 - **Development**: The application is actively running and accessible
 - **Important**: Do not attempt to start additional servers - the application is already served by Laravel Herd
 

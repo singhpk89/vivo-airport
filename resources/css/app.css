@@ -1,5 +1,53 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* Fallback fonts for code/monospace */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+
+/* Vivo Brand Fonts */
+@font-face {
+    font-family: 'Vivo';
+    src: url('https://vair.test/fonts/vivo-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Vivo';
+    src: url('https://vair.test/fonts/vivo-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Vivo';
+    src: url('https://vair.test/fonts/vivo-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Vivo';
+    src: url('https://vair.test/fonts/vivo-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Vivo';
+    src: url('https://vair.test/fonts/vivo-Heavy.ttf') format('truetype');
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* Force Vivo font usage */
+body, html, #app {
+    font-family: 'Vivo', sans-serif !important;
+}
 
 /* Material 3 Light Theme Color Tokens */
 :root {
