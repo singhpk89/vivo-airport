@@ -6,21 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ $settings['app_name'] ?? config('app.name', 'GICWP - V2') }}</title>
+    <title>{{ $settings['app_name'] ?? config('app.name', 'Xperience Studio by Vivo') }}</title>
 
     <!-- SEO Meta Tags -->
-    <meta name="description" content="{{ $settings['app_name'] ?? config('app.name', 'GICWP - V2') }} - Administrative Panel">
-    <meta name="application-name" content="{{ $settings['app_name'] ?? config('app.name', 'GICWP - V2') }}">
+    <meta name="description" content="{{ $settings['app_name'] ?? config('app.name', 'Xperience Studio by Vivo') }} - Administrative Panel">
+    <meta name="application-name" content="{{ $settings['app_name'] ?? config('app.name', 'Xperience Studio by Vivo') }}">
 
     <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="{{ $settings['app_name'] ?? config('app.name', 'GICWP - V2') }}">
-    <meta property="og:description" content="{{ $settings['app_name'] ?? config('app.name', 'GICWP - V2') }} - Administrative Panel">
+    <meta property="og:title" content="{{ $settings['app_name'] ?? config('app.name', 'Xperience Studio by Vivo') }}">
+    <meta property="og:description" content="{{ $settings['app_name'] ?? config('app.name', 'Xperience Studio by Vivo') }} - Administrative Panel">
     <meta property="og:type" content="website">
 
     <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="{{ $settings['app_name'] ?? config('app.name', 'GICWP - V2') }}">
-    <meta name="twitter:description" content="{{ $settings['app_name'] ?? config('app.name', 'GICWP - V2') }} - Administrative Panel">
+    <meta name="twitter:title" content="{{ $settings['app_name'] ?? config('app.name', 'Xperience Studio by Vivo') }}">
+    <meta name="twitter:description" content="{{ $settings['app_name'] ?? config('app.name', 'Xperience Studio by Vivo') }} - Administrative Panel">
 
     <!-- Styles / Scripts -->
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
