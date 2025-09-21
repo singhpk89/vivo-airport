@@ -1,0 +1,14 @@
+{
+  "name": "li-council",
+  "scripts": {
+    "dev": "vite",
+    "dev:env": "npm run env:dev && npm run dev",
+    "build": "vite build",
+    "build:prod": "npm run env:prod && npm run build",
+    "preview": "vite preview",
+    "env:dev": "copy .env.development .env",
+    "env:prod": "copy .env.production .env",
+    "deploy:dev": "npm run env:dev && npm run build",
+    "deploy:prod": "npm run env:prod && npm run build"
+  }
+}

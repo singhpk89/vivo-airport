@@ -1,0 +1,5 @@
+In route Plan Total data count not showing at table bottom like Filament
+And Filters must have all states , districts , sub districts and villages in dropdown
+
+Rows per page update the valuve from server so thar sufficent data pull to show
+

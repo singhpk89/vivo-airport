@@ -1,0 +1,972 @@
+openapi: 3.0.3
+info:
+  title: LI Council API
+  description: |
+    API for LI Council mobile application and admin panel.
+
+    ## Authentication
+    This API uses Laravel Sanctum for authentication. Include the Bearer token in the Authorization header:
+    `Authorization: Bearer {your-token-here}`
+
+    ## Base URL
+    - Production: `https://li-council.test/api`
+    - Development: `http://localhost:8000/api`
+
+    ## Documentation
+    For detailed documentation with examples, see [API_DOCUMENTATION.md](./API_DOCUMENTATION.md)
+  version: 1.0.0
+  contact:
+    name: LI Council API Support
+    email: support@li-council.com
+
+servers:
+  - url: https://li-council.test/api
+    description: Production server
+  - url: http://localhost:8000/api
+    description: Development server
+
+security:
+  - sanctumAuth: []
+
+tags:
+  - name: Mobile Auth
+    description: Mobile app authentication endpoints
+  - name: Mobile Activities
+    description: Mobile app activity management
+  - name: Mobile Route Plans
+    description: Mobile app route plan access
+  - name: Admin Auth
+    description: Admin panel authentication
+  - name: Promoters
+    description: Promoter management
+  - name: Activities
+    description: Activity management
+  - name: Route Plans
+    description: Route plan management
+  - name: Roles & Permissions
+    description: Role and permission management
+
+paths:
+  # Mobile Authentication
+  /mobile/auth/login:
+    post:
+      tags:
+        - Mobile Auth
+      summary: Mobile promoter login
+      description: Authenticate a promoter for mobile app access
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                  example: "promoter123"
+                password:
+                  type: string
+                  example: "password123"
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          promoter:
+                            $ref: '#/components/schemas/Promoter'
+                          token:
+                            type: string
+                            example: "1|abcd1234567890xyz..."
+                          token_type:
+                            type: string
+                            example: "Bearer"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /mobile/auth/profile:
+    get:
+      tags:
+        - Mobile Auth
+      summary: Get promoter profile
+      description: Get the authenticated promoter's profile information
+      responses:
+        '200':
+          description: Profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Promoter'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    put:
+      tags:
+        - Mobile Auth
+      summary: Update promoter profile
+      description: Update the authenticated promoter's profile information
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "John Doe Updated"
+                email:
+                  type: string
+                  format: email
+                  example: "john.updated@example.com"
+                phone:
+                  type: string
+                  example: "+91-9876543211"
+                profile_image:
+                  type: string
+                  description: Base64 encoded image
+      responses:
+        '200':
+          description: Profile updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /mobile/auth/logout:
+    post:
+      tags:
+        - Mobile Auth
+      summary: Logout promoter
+      description: Logout the authenticated promoter and invalidate token
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # Mobile Route Plans
+  /mobile/route-plans:
+    get:
+      tags:
+        - Mobile Route Plans
+      summary: Get route plans for mobile
+      description: Get route plans accessible to the authenticated promoter
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+        - $ref: '#/components/parameters/Search'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, inactive, completed]
+        - name: state
+          in: query
+          schema:
+            type: string
+        - name: district
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Route plans retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/PaginatedRoutePlans'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # Mobile Activities
+  /mobile/activities:
+    get:
+      tags:
+        - Mobile Activities
+      summary: Get activities for mobile
+      description: Get activities for the authenticated promoter
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+        - $ref: '#/components/parameters/Search'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, completed, cancelled]
+        - name: activity_type
+          in: query
+          schema:
+            type: string
+            enum: [recce, visit, survey]
+        - name: product_type
+          in: query
+          schema:
+            type: string
+            enum: [Grey, Gold, Pink, Brown]
+        - name: start_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Activities retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/PaginatedActivities'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    post:
+      tags:
+        - Mobile Activities
+      summary: Create new activity
+      description: Create a new activity record from mobile app
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateActivityRequest'
+      responses:
+        '201':
+          description: Activity created successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Activity'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  # Admin Authentication
+  /auth/login:
+    post:
+      tags:
+        - Admin Auth
+      summary: Admin login
+      description: Authenticate an admin user
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "admin@example.com"
+                password:
+                  type: string
+                  example: "password123"
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          user:
+                            $ref: '#/components/schemas/User'
+                          token:
+                            type: string
+                          token_type:
+                            type: string
+                            example: "Bearer"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  # Promoter Management
+  /promoters:
+    get:
+      tags:
+        - Promoters
+      summary: Get promoters
+      description: Get a paginated list of promoters
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+        - $ref: '#/components/parameters/Search'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, inactive]
+        - name: state
+          in: query
+          schema:
+            type: string
+        - name: district
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Promoters retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/PaginatedPromoters'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    post:
+      tags:
+        - Promoters
+      summary: Create promoter
+      description: Create a new promoter
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePromoterRequest'
+      responses:
+        '201':
+          description: Promoter created successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Promoter'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+components:
+  securitySchemes:
+    sanctumAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: token
+
+  parameters:
+    Page:
+      name: page
+      in: query
+      description: Page number for pagination
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+
+    PerPage:
+      name: per_page
+      in: query
+      description: Number of items per page
+      schema:
+        type: integer
+        default: 15
+        minimum: 1
+        maximum: 100
+
+    Search:
+      name: search
+      in: query
+      description: Search term
+      schema:
+        type: string
+
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Operation successful"
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: "An error occurred"
+
+    ValidationErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
+        - type: object
+          properties:
+            errors:
+              type: object
+              additionalProperties:
+                type: array
+                items:
+                  type: string
+
+    PaginationMeta:
+      type: object
+      properties:
+        current_page:
+          type: integer
+          example: 1
+        last_page:
+          type: integer
+          example: 5
+        per_page:
+          type: integer
+          example: 15
+        total:
+          type: integer
+          example: 75
+        from:
+          type: integer
+          example: 1
+        to:
+          type: integer
+          example: 15
+
+    Promoter:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "John Doe"
+        username:
+          type: string
+          example: "promoter123"
+        email:
+          type: string
+          format: email
+          example: "john@example.com"
+        phone:
+          type: string
+          example: "+91-9876543210"
+        state:
+          type: string
+          example: "Maharashtra"
+        district:
+          type: string
+          example: "Mumbai"
+        sub_district:
+          type: string
+          example: "Andheri"
+        village:
+          type: string
+          example: "Andheri East"
+        is_active:
+          type: boolean
+          example: true
+        is_logged_in:
+          type: boolean
+          example: false
+        profile_image:
+          type: string
+          nullable: true
+          example: "storage/promoters/profile.jpg"
+        last_login_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Activity:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        visit_date:
+          type: string
+          format: date
+          example: "2025-08-24"
+        promoter_id:
+          type: integer
+          example: 1
+        plan_id:
+          type: integer
+          nullable: true
+          example: 1
+        device_id:
+          type: string
+          nullable: true
+          example: "device123"
+        activity_type:
+          type: string
+          enum: [recce, visit, survey]
+          example: "recce"
+        product_type:
+          type: string
+          enum: [Grey, Gold, Pink, Brown]
+          example: "Gold"
+        state:
+          type: string
+          example: "Maharashtra"
+        district:
+          type: string
+          example: "Mumbai"
+        sub_district:
+          type: string
+          example: "Andheri"
+        village:
+          type: string
+          example: "Andheri East"
+        village_code:
+          type: string
+          example: "MH001"
+        location:
+          type: string
+          example: "Near Metro Station"
+        landmark:
+          type: string
+          nullable: true
+          example: "Metro Station Gate 2"
+        latitude:
+          type: number
+          format: float
+          nullable: true
+          example: 19.1075
+        longitude:
+          type: number
+          format: float
+          nullable: true
+          example: 72.8263
+        remarks:
+          type: string
+          nullable: true
+          example: "Good location for activity"
+        close_shot1:
+          type: string
+          nullable: true
+          example: "storage/activities/photo1.jpg"
+        close_shot_2:
+          type: string
+          nullable: true
+          example: "storage/activities/photo2.jpg"
+        long_shot_1:
+          type: string
+          nullable: true
+          example: "storage/activities/photo3.jpg"
+        long_shot_2:
+          type: string
+          nullable: true
+          example: "storage/activities/photo4.jpg"
+        status:
+          type: string
+          enum: [pending, completed, cancelled]
+          example: "completed"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    RoutePlan:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        plan_name:
+          type: string
+          example: "Mumbai Route Plan 1"
+        state:
+          type: string
+          example: "Maharashtra"
+        district:
+          type: string
+          example: "Mumbai"
+        sub_district:
+          type: string
+          example: "Andheri"
+        village:
+          type: string
+          example: "Andheri East"
+        village_code:
+          type: string
+          example: "MH001"
+        location:
+          type: string
+          example: "Near Metro Station"
+        landmark:
+          type: string
+          nullable: true
+          example: "Metro Station Gate 2"
+        latitude:
+          type: number
+          format: float
+          nullable: true
+          example: 19.1075
+        longitude:
+          type: number
+          format: float
+          nullable: true
+          example: 72.8263
+        status:
+          type: string
+          enum: [active, inactive, completed]
+          example: "active"
+        promoter_id:
+          type: integer
+          nullable: true
+          example: 1
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Admin User"
+        email:
+          type: string
+          format: email
+          example: "admin@example.com"
+        roles:
+          type: array
+          items:
+            type: string
+          example: ["admin"]
+        permissions:
+          type: array
+          items:
+            type: string
+          example: ["users.view", "users.create", "activities.view"]
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    CreateActivityRequest:
+      type: object
+      required:
+        - visit_date
+        - activity_type
+        - product_type
+        - state
+        - district
+        - sub_district
+        - village
+        - village_code
+        - location
+      properties:
+        visit_date:
+          type: string
+          format: date
+          example: "2025-08-24"
+        plan_id:
+          type: integer
+          nullable: true
+          example: 1
+        device_id:
+          type: string
+          nullable: true
+          example: "device123"
+        activity_type:
+          type: string
+          enum: [recce, visit, survey]
+          example: "recce"
+        product_type:
+          type: string
+          enum: [Grey, Gold, Pink, Brown]
+          example: "Gold"
+        state:
+          type: string
+          example: "Maharashtra"
+        district:
+          type: string
+          example: "Mumbai"
+        sub_district:
+          type: string
+          example: "Andheri"
+        village:
+          type: string
+          example: "Andheri East"
+        village_code:
+          type: string
+          example: "MH001"
+        location:
+          type: string
+          example: "Near Metro Station"
+        landmark:
+          type: string
+          nullable: true
+          example: "Metro Station Gate 2"
+        latitude:
+          type: number
+          format: float
+          nullable: true
+          example: 19.1075
+        longitude:
+          type: number
+          format: float
+          nullable: true
+          example: 72.8263
+        remarks:
+          type: string
+          nullable: true
+          example: "Good location for activity"
+        close_shot1:
+          type: string
+          nullable: true
+          description: "Base64 encoded image"
+        close_shot_2:
+          type: string
+          nullable: true
+          description: "Base64 encoded image"
+        long_shot_1:
+          type: string
+          nullable: true
+          description: "Base64 encoded image"
+        long_shot_2:
+          type: string
+          nullable: true
+          description: "Base64 encoded image"
+
+    CreatePromoterRequest:
+      type: object
+      required:
+        - name
+        - username
+        - email
+        - password
+        - state
+        - district
+        - sub_district
+        - village
+      properties:
+        name:
+          type: string
+          example: "New Promoter"
+        username:
+          type: string
+          example: "newpromoter"
+        email:
+          type: string
+          format: email
+          example: "promoter@example.com"
+        phone:
+          type: string
+          example: "+91-9876543210"
+        password:
+          type: string
+          example: "password123"
+        state:
+          type: string
+          example: "Maharashtra"
+        district:
+          type: string
+          example: "Mumbai"
+        sub_district:
+          type: string
+          example: "Andheri"
+        village:
+          type: string
+          example: "Andheri East"
+        is_active:
+          type: boolean
+          default: true
+
+    PaginatedPromoters:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Promoter'
+        current_page:
+          type: integer
+          example: 1
+        last_page:
+          type: integer
+          example: 5
+        per_page:
+          type: integer
+          example: 15
+        total:
+          type: integer
+          example: 75
+
+    PaginatedActivities:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Activity'
+        current_page:
+          type: integer
+          example: 1
+        last_page:
+          type: integer
+          example: 3
+        per_page:
+          type: integer
+          example: 15
+        total:
+          type: integer
+          example: 45
+
+    PaginatedRoutePlans:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoutePlan'
+        current_page:
+          type: integer
+          example: 1
+        last_page:
+          type: integer
+          example: 4
+        per_page:
+          type: integer
+          example: 15
+        total:
+          type: integer
+          example: 60
+
+  responses:
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ErrorResponse'
+              - type: object
+                properties:
+                  message:
+                    example: "Unauthenticated"
+
+    Forbidden:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ErrorResponse'
+              - type: object
+                properties:
+                  message:
+                    example: "This action is unauthorized"
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ErrorResponse'
+              - type: object
+                properties:
+                  message:
+                    example: "Resource not found"
+
+    ValidationError:
+      description: Validation failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationErrorResponse'
+
+    ServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ErrorResponse'
+              - type: object
+                properties:
+                  message:
+                    example: "An error occurred while processing your request"

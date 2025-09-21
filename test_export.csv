@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="A7AQz2TqSL23Bj0jGxHrjwySWjdDOwhavfrgLemZ">
+
+        <title>LI COUNCIL</title>
+
+        <!-- Fonts -->
+        <link rel="preconnect" href="https://fonts.bunny.net">
+        <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
+
+        <!-- Styles / Scripts -->
+                                <link rel="preload" as="style" href="https://li-council.uplive.at/build/assets/app-Bw_1r9BI.css" /><link rel="modulepreload" as="script" href="https://li-council.uplive.at/build/assets/app-CBCGWUvV.js" /><link rel="stylesheet" href="https://li-council.uplive.at/build/assets/app-Bw_1r9BI.css" /><script type="module" src="https://li-council.uplive.at/build/assets/app-CBCGWUvV.js"></script>            </head>
+    <body class="antialiased">
+        <div id="app"></div>
+    </body>
+</html>
