@@ -51,65 +51,65 @@ const navigationItems = [
     permission: 'dashboard.view',
     menuKey: 'dashboard'
   },
-  {
-    type: 'divider',
-    id: 'reports-divider',
-    label: 'Reports & Analytics'
-  },
-  {
-    title: 'Reports',
-    icon: FileText,
-    items: [
-      {
-        title: 'All Activity',
-        url: '/reports/all-activity',
-        icon: Activity,
-        permission: 'activity_recces.view',
-        menuKey: 'activity_recces'
-      },
-      {
-        title: 'Pending Activity',
-        url: '/reports/pending-activity',
-        icon: Clock,
-        permission: 'activity_recces.view',
-        menuKey: 'activity_recces'
-      },
-      {
-        title: 'Approved Activity',
-        url: '/reports/approved-activity',
-        icon: CheckCircle,
-        permission: 'activity_recces.view',
-        menuKey: 'activity_recces'
-      },
-      {
-        title: 'Rejected Activity',
-        url: '/reports/rejected-activity',
-        icon: XCircle,
-        permission: 'activity_recces.view',
-        menuKey: 'activity_recces'
-      },
-      {
-        title: 'Route Plan',
-        url: '/reports/route-plan',
-        icon: Route,
-        permission: 'route_plans.view',
-        menuKey: 'route_plans'
-      }
-    ]
-  },
-  {
-    title: 'Photos',
-    icon: Camera,
-    items: [
-      {
-        title: 'Photo Gallery',
-        url: '/photos/gallery',
-        icon: Images,
-        permission: 'photos.view',
-        menuKey: 'photos'
-      }
-    ]
-  },
+//   {
+//     type: 'divider',
+//     id: 'reports-divider',
+//     label: 'Reports & Analytics'
+//   },
+//   {
+//     title: 'Reports',
+//     icon: FileText,
+//     items: [
+//       {
+//         title: 'All Activity',
+//         url: '/reports/all-activity',
+//         icon: Activity,
+//         permission: 'activity_recces.view',
+//         menuKey: 'activity_recces'
+//       },
+//       {
+//         title: 'Pending Activity',
+//         url: '/reports/pending-activity',
+//         icon: Clock,
+//         permission: 'activity_recces.view',
+//         menuKey: 'activity_recces'
+//       },
+//       {
+//         title: 'Approved Activity',
+//         url: '/reports/approved-activity',
+//         icon: CheckCircle,
+//         permission: 'activity_recces.view',
+//         menuKey: 'activity_recces'
+//       },
+//       {
+//         title: 'Rejected Activity',
+//         url: '/reports/rejected-activity',
+//         icon: XCircle,
+//         permission: 'activity_recces.view',
+//         menuKey: 'activity_recces'
+//       },
+//       {
+//         title: 'Route Plan',
+//         url: '/reports/route-plan',
+//         icon: Route,
+//         permission: 'route_plans.view',
+//         menuKey: 'route_plans'
+//       }
+//     ]
+//   },
+//   {
+//     title: 'Photos',
+//     icon: Camera,
+//     items: [
+//       {
+//         title: 'Photo Gallery',
+//         url: '/photos/gallery',
+//         icon: Images,
+//         permission: 'photos.view',
+//         menuKey: 'photos'
+//       }
+//     ]
+//   },
   {
     type: 'divider',
     id: 'activity-divider',

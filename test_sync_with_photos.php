@@ -2,7 +2,7 @@
 
 /**
  * Test Updated Sync API with AWS S3 Photo URLs
- * 
+ *
  * This script tests the enhanced sync endpoint that supports:
  * 1. Activity data synchronization
  * 2. AWS S3 photo URLs instead of file uploads
@@ -18,16 +18,16 @@ echo "============================================\n\n";
 
 function makeRequest($url, $data = null, $method = 'GET', $token = null) {
     $curl = curl_init();
-    
+
     $headers = [
         'Content-Type: application/json',
         'Accept: application/json'
     ];
-    
+
     if ($token) {
         $headers[] = 'Authorization: Bearer ' . $token;
     }
-    
+
     curl_setopt_array($curl, [
         CURLOPT_URL => $url,
         CURLOPT_RETURNTRANSFER => true,
@@ -35,18 +35,18 @@ function makeRequest($url, $data = null, $method = 'GET', $token = null) {
         CURLOPT_SSL_VERIFYPEER => false,
         CURLOPT_SSL_VERIFYHOST => false
     ]);
-    
+
     if ($method === 'POST') {
         curl_setopt($curl, CURLOPT_POST, true);
         if ($data) {
             curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
         }
     }
-    
+
     $response = curl_exec($curl);
     $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
     curl_close($curl);
-    
+
     return [
         'status' => $httpCode,
         'body' => json_decode($response, true),

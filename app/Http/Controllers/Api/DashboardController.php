@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\ActivityRecce;
 use App\Models\RoutePlan;
+use App\Models\PromoterActivity;
+use App\Models\Feedback;
+use App\Models\Promoter;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -29,9 +32,10 @@ class DashboardController extends Controller
             $data = cache()->remember($cacheKey, 120, function () use ($dateRange) {
                 return [
                     'stats' => $this->getStatsCards($dateRange),
-                    'state_wise_data' => $this->getStateWiseData($dateRange),
+                    'promoter_activity_data' => $this->getPromoterActivityData($dateRange),
+                    'feedback_data' => $this->getFeedbackData($dateRange),
                     'activity_by_date' => $this->getActivityByDate($dateRange),
-                    'pie_charts' => $this->getPieChartsData($dateRange),
+                    'daily_progress' => $this->getDailyProgress($dateRange),
                 ];
             });
 
@@ -53,44 +57,50 @@ class DashboardController extends Controller
      */
     private function getStatsCards($dateRange)
     {
-        $totalActivities = ActivityRecce::forUserStates()->whereBetween('visit_date', $dateRange)->count();
-        $approvedActivities = ActivityRecce::forUserStates()->whereBetween('visit_date', $dateRange)
-            ->where('status', 'approved')->count();
-        $pendingActivities = ActivityRecce::forUserStates()->whereBetween('visit_date', $dateRange)
-            ->where('status', 'pending')->count();
-        $rejectedActivities = ActivityRecce::forUserStates()->whereBetween('visit_date', $dateRange)
-            ->where('status', 'rejected')->count();
+        // Promoter Activity Stats
+        $totalPromoters = Promoter::where('is_active', true)->count();
+        $activePromoters = PromoterActivity::whereBetween('activity_date', $dateRange)
+            ->where('status', '!=', 'logged_out')
+            ->distinct('promoter_id')
+            ->count();
 
-        // Calculate walls completed: Total planned walls vs Approved activities (each approved activity = 1 wall completed)
-        $totalPlannedWalls = RoutePlan::where('is_active', true)->sum('wall_count');
-        $wallsCompleted = $approvedActivities; // Each approved activity represents 1 wall completed
-        $wallCompletionRate = $totalPlannedWalls > 0 ? round(($wallsCompleted / $totalPlannedWalls) * 100, 1) : 0;
+        $totalSessions = PromoterActivity::whereBetween('activity_date', $dateRange)->count();
+        $totalPhotos = PromoterActivity::whereBetween('activity_date', $dateRange)
+            ->sum('total_photos_captured');
 
-        $approvalRate = $totalActivities > 0 ? round(($approvedActivities / $totalActivities) * 100, 1) : 0;
+        // Feedback Stats
+        $totalFeedback = Feedback::whereBetween('created_at', $dateRange)->count();
+        $avgRating = Feedback::whereBetween('created_at', $dateRange)
+            ->whereNotNull('experience_rating')
+            ->avg('experience_rating');
+
+        // Activity engagement rate
+        $engagementRate = $totalPromoters > 0 ? round(($activePromoters / $totalPromoters) * 100, 1) : 0;
 
         return [
-            'total_walls' => [
-                'count' => $totalActivities,
-                'label' => 'Total of '.$totalPlannedWalls.' planned walls',
-                'icon' => 'activity',
+            'total_promoters' => [
+                'count' => $totalPromoters,
+                'label' => $activePromoters . ' active this period',
+                'icon' => 'users',
+                'color' => 'primary',
             ],
-            'approved_activities' => [
-                'count' => $approvedActivities,
-                'label' => $approvalRate.'% approval rate',
-                'icon' => 'check-circle',
+            'promoter_sessions' => [
+                'count' => $totalSessions,
+                'label' => $engagementRate . '% engagement rate',
+                'icon' => 'activity',
                 'color' => 'success',
             ],
-            'pending_activities' => [
-                'count' => $pendingActivities,
-                'label' => 'Awaiting approval',
-                'icon' => 'clock',
-                'color' => 'warning',
+            'photos_captured' => [
+                'count' => $totalPhotos,
+                'label' => 'Photos captured',
+                'icon' => 'camera',
+                'color' => 'info',
             ],
-            'rejected_activities' => [
-                'count' => $rejectedActivities,
-                'label' => $totalActivities > 0 ? round(($rejectedActivities / $totalActivities) * 100, 1).'% rejection rate' : '0% rejection rate',
-                'icon' => 'x-circle',
-                'color' => 'danger',
+            'feedback_received' => [
+                'count' => $totalFeedback,
+                'label' => $avgRating ? round($avgRating, 1) . '/5 avg rating' : 'No ratings yet',
+                'icon' => 'message-square',
+                'color' => 'warning',
             ],
         ];
     }
@@ -287,6 +297,167 @@ class DashboardController extends Controller
                 'color' => $colors[$index % count($colors)],
             ];
         })->toArray();
+    }
+
+    /**
+     * Get promoter activity analytics data
+     */
+    private function getPromoterActivityData($dateRange)
+    {
+        // Activity by status
+        $activityByStatus = PromoterActivity::select('status', DB::raw('count(*) as count'))
+            ->whereBetween('activity_date', $dateRange)
+            ->groupBy('status')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'name' => ucfirst(str_replace('_', ' ', $item->status)),
+                    'value' => $item->count,
+                    'status' => $item->status
+                ];
+            });
+
+        // Top active promoters
+        $topPromoters = PromoterActivity::select('promoter_id', DB::raw('count(*) as session_count'), DB::raw('sum(total_photos_captured) as photo_count'))
+            ->whereBetween('activity_date', $dateRange)
+            ->with('promoter:id,name,state')
+            ->groupBy('promoter_id')
+            ->orderBy('session_count', 'desc')
+            ->limit(10)
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'promoter_name' => $item->promoter->name ?? 'Unknown',
+                    'state' => $item->promoter->state ?? 'Unknown',
+                    'sessions' => $item->session_count,
+                    'photos' => $item->photo_count
+                ];
+            });
+
+        // Activity by state
+        $activityByState = PromoterActivity::select('promoters.state', DB::raw('count(promoter_activities.id) as activity_count'))
+            ->join('promoters', 'promoter_activities.promoter_id', '=', 'promoters.id')
+            ->whereBetween('promoter_activities.activity_date', $dateRange)
+            ->groupBy('promoters.state')
+            ->orderBy('activity_count', 'desc')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'state' => $item->state,
+                    'activities' => $item->activity_count
+                ];
+            });
+
+        return [
+            'activity_by_status' => $activityByStatus,
+            'top_promoters' => $topPromoters,
+            'activity_by_state' => $activityByState
+        ];
+    }
+
+    /**
+     * Get feedback analytics data
+     */
+    private function getFeedbackData($dateRange)
+    {
+        // Feedback ratings distribution
+        $ratingDistribution = Feedback::select('experience_rating', DB::raw('count(*) as count'))
+            ->whereBetween('created_at', $dateRange)
+            ->whereNotNull('experience_rating')
+            ->groupBy('experience_rating')
+            ->orderBy('experience_rating')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'rating' => $item->experience_rating . ' Star' . ($item->experience_rating > 1 ? 's' : ''),
+                    'count' => $item->count
+                ];
+            });
+
+        // Vivo product satisfaction
+        $productSatisfaction = Feedback::select('overall_experience', DB::raw('count(*) as count'))
+            ->whereBetween('created_at', $dateRange)
+            ->whereNotNull('overall_experience')
+            ->groupBy('overall_experience')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'satisfaction' => ucfirst($item->overall_experience),
+                    'count' => $item->count
+                ];
+            });
+
+        // Recent feedback trends
+        $feedbackTrends = Feedback::select(
+                DB::raw('DATE(created_at) as date'),
+                DB::raw('count(*) as feedback_count'),
+                DB::raw('avg(experience_rating) as avg_rating')
+            )
+            ->whereBetween('created_at', $dateRange)
+            ->groupBy(DB::raw('DATE(created_at)'))
+            ->orderBy('date')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'date' => $item->date,
+                    'feedback_count' => $item->feedback_count,
+                    'avg_rating' => $item->avg_rating ? round($item->avg_rating, 1) : null
+                ];
+            });
+
+        return [
+            'rating_distribution' => $ratingDistribution,
+            'product_satisfaction' => $productSatisfaction,
+            'feedback_trends' => $feedbackTrends
+        ];
+    }
+
+    /**
+     * Get daily progress data for date-wise analytics
+     */
+    private function getDailyProgress($dateRange)
+    {
+        // Daily promoter activity progress
+        $dailyActivity = PromoterActivity::select(
+                DB::raw('DATE(activity_date) as date'),
+                DB::raw('count(distinct promoter_id) as active_promoters'),
+                DB::raw('count(*) as total_sessions'),
+                DB::raw('sum(total_photos_captured) as photos_captured'),
+                DB::raw('sum(total_feedback_captured) as feedback_captured')
+            )
+            ->whereBetween('activity_date', $dateRange)
+            ->groupBy(DB::raw('DATE(activity_date)'))
+            ->orderBy('date')
+            ->get();
+
+        // Daily feedback received
+        $dailyFeedback = Feedback::select(
+                DB::raw('DATE(created_at) as date'),
+                DB::raw('count(*) as feedback_count'),
+                DB::raw('avg(experience_rating) as avg_rating')
+            )
+            ->whereBetween('created_at', $dateRange)
+            ->groupBy(DB::raw('DATE(created_at)'))
+            ->orderBy('date')
+            ->get()
+            ->keyBy('date');
+
+        // Combine data for comprehensive daily view
+        $combinedData = $dailyActivity->map(function ($activity) use ($dailyFeedback) {
+            $feedback = $dailyFeedback->get($activity->date);
+
+            return [
+                'date' => $activity->date,
+                'active_promoters' => $activity->active_promoters,
+                'total_sessions' => $activity->total_sessions,
+                'photos_captured' => $activity->photos_captured,
+                'feedback_captured' => $activity->feedback_captured,
+                'feedback_received' => $feedback ? $feedback->feedback_count : 0,
+                'avg_rating' => $feedback && $feedback->avg_rating ? round($feedback->avg_rating, 1) : null
+            ];
+        });
+
+        return $combinedData;
     }
 
     /**

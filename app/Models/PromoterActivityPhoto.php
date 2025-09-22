@@ -35,6 +35,11 @@ class PromoterActivityPhoto extends Model
     ];
 
     /**
+     * The attributes that should be appended to the model's array form.
+     */
+    protected $appends = ['url'];
+
+    /**
      * Get the activity that owns this photo.
      */
     public function activity(): BelongsTo
@@ -52,7 +57,7 @@ class PromoterActivityPhoto extends Model
         if (filter_var($this->file_path, FILTER_VALIDATE_URL)) {
             return $this->file_path;
         }
-        
+
         // Otherwise, use Laravel Storage for local/relative paths
         return Storage::url($this->file_path);
     }

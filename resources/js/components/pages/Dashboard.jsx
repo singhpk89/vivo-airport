@@ -13,7 +13,10 @@ import {
   CheckCircle,
   XCircle,
   Clock,
-  AlertCircle
+  AlertCircle,
+  Users,
+  Camera,
+  MessageSquare
 } from 'lucide-react';
 import {
   BarChart,
@@ -97,29 +100,29 @@ const getProductTypeColors = (data) => {
 // Material 3 Stats Card Colors
 const getMaterial3StatsColors = (statKey, index) => {
   const material3Colors = {
-    'total_walls': {
+    'total_promoters': {
       bg: 'bg-gradient-to-br from-blue-50 to-blue-100',
       icon: 'bg-gradient-to-br from-blue-500 to-blue-600',
       iconText: 'text-white',
       border: 'border-blue-200'
     },
-    'approved_activities': {
+    'promoter_sessions': {
       bg: 'bg-gradient-to-br from-green-50 to-green-100',
       icon: 'bg-gradient-to-br from-green-500 to-green-600',
       iconText: 'text-white',
       border: 'border-green-200'
     },
-    'pending_activities': {
+    'photos_captured': {
+      bg: 'bg-gradient-to-br from-purple-50 to-purple-100',
+      icon: 'bg-gradient-to-br from-purple-500 to-purple-600',
+      iconText: 'text-white',
+      border: 'border-purple-200'
+    },
+    'feedback_received': {
       bg: 'bg-gradient-to-br from-amber-50 to-amber-100',
       icon: 'bg-gradient-to-br from-amber-500 to-amber-600',
       iconText: 'text-white',
       border: 'border-amber-200'
-    },
-    'rejected_activities': {
-      bg: 'bg-gradient-to-br from-red-50 to-red-100',
-      icon: 'bg-gradient-to-br from-red-500 to-red-600',
-      iconText: 'text-white',
-      border: 'border-red-200'
     }
   };
 
@@ -147,13 +150,18 @@ const GradientBar = (props) => {
   // Analytics data
   const [analyticsData, setAnalyticsData] = useState({
     stats: {},
-    state_wise_data: [],
+    promoter_activity_data: {
+      activity_by_status: [],
+      top_promoters: [],
+      activity_by_state: []
+    },
+    feedback_data: {
+      rating_distribution: [],
+      product_satisfaction: [],
+      feedback_trends: []
+    },
     activity_by_date: [],
-    pie_charts: {
-      by_walls: [],
-      by_villages: [],
-      by_brands: []
-    }
+    daily_progress: []
   });
 
   // Date range for filtering
@@ -198,17 +206,17 @@ const GradientBar = (props) => {
     const queryString = params.toString();
 
     switch (statKey) {
-      case 'total_walls':
-        navigate(`/reports/all-activity${queryString ? '?' + queryString : ''}`);
+      case 'total_promoters':
+        navigate(`/acl/promoters${queryString ? '?' + queryString : ''}`);
         break;
-      case 'approved_activities':
-        navigate(`/reports/approved-activity${queryString ? '?' + queryString : ''}`);
+      case 'promoter_sessions':
+        navigate(`/admin/promoter-activity${queryString ? '?' + queryString : ''}`);
         break;
-      case 'pending_activities':
-        navigate(`/reports/pending-activity${queryString ? '?' + queryString : ''}`);
+      case 'photos_captured':
+        navigate(`/admin/promoter-activity${queryString ? '?' + queryString : ''}`);
         break;
-      case 'rejected_activities':
-        navigate(`/reports/rejected-activity${queryString ? '?' + queryString : ''}`);
+      case 'feedback_received':
+        navigate(`/admin/feedback${queryString ? '?' + queryString : ''}`);
         break;
       default:
         console.log('Unknown stat key:', statKey);
@@ -265,7 +273,10 @@ const GradientBar = (props) => {
       'activity': Activity,
       'check-circle': CheckCircle,
       'clock': Clock,
-      'x-circle': XCircle
+      'x-circle': XCircle,
+      'users': Users,
+      'camera': Camera,
+      'message-square': MessageSquare
     };
     return icons[iconName] || Activity;
   };
@@ -307,7 +318,7 @@ const GradientBar = (props) => {
             </div>
             <div>
               <h1 className="text-xl font-semibold text-foreground">Analytics Dashboard</h1>
-              <p className="text-sm text-muted-foreground">Wall Paint Insights</p>
+              <p className="text-sm text-muted-foreground">Promoter Activity & Vivo Feedback Insights</p>
             </div>
           </div>
         }
@@ -438,42 +449,50 @@ const GradientBar = (props) => {
           })}
         </div>
 
-        {/* State Wise Chart */}
+        {/* Daily Progress Chart */}
         <Card className="p-6 bg-white border-gray-200/50 chart-container">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h3 className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                State Wise: Planned vs Activity
+                Daily Progress Overview
               </h3>
-              <p className="text-sm text-muted-foreground">Comparison of planned routes and actual activities</p>
+              <p className="text-sm text-muted-foreground">Date-wise promoter activity and feedback trends</p>
             </div>
             <div className="flex items-center gap-4 text-sm">
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded bg-gradient-to-r from-purple-500 to-purple-600"></div>
-                <span className="text-muted-foreground">Planned Routes</span>
+                <div className="w-3 h-3 rounded bg-gradient-to-r from-blue-500 to-blue-600"></div>
+                <span className="text-muted-foreground">Sessions</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded bg-gradient-to-r from-emerald-500 to-emerald-600"></div>
-                <span className="text-muted-foreground">Activities</span>
+                <div className="w-3 h-3 rounded bg-gradient-to-r from-green-500 to-green-600"></div>
+                <span className="text-muted-foreground">Photos</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded bg-gradient-to-r from-purple-500 to-purple-600"></div>
+                <span className="text-muted-foreground">Feedback</span>
               </div>
             </div>
           </div>
           <div className="h-96">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={analyticsData.state_wise_data} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+              <LineChart data={analyticsData.daily_progress} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
                 <defs>
-                  <linearGradient id="gradient-planned" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#8b5cf6" stopOpacity={1}/>
-                    <stop offset="100%" stopColor="#a855f7" stopOpacity={0.8}/>
+                  <linearGradient id="gradient-sessions" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.8}/>
+                    <stop offset="100%" stopColor="#1d4ed8" stopOpacity={0.3}/>
                   </linearGradient>
-                  <linearGradient id="gradient-activity" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#10b981" stopOpacity={1}/>
-                    <stop offset="100%" stopColor="#059669" stopOpacity={0.8}/>
+                  <linearGradient id="gradient-photos" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#10b981" stopOpacity={0.8}/>
+                    <stop offset="100%" stopColor="#059669" stopOpacity={0.3}/>
+                  </linearGradient>
+                  <linearGradient id="gradient-feedback" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.8}/>
+                    <stop offset="100%" stopColor="#7c3aed" stopOpacity={0.3}/>
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" strokeOpacity={0.5} />
                 <XAxis
-                  dataKey="state"
+                  dataKey="date"
                   axisLine={false}
                   tickLine={false}
                   tick={{ fontSize: 11, fill: '#64748b' }}
@@ -488,361 +507,211 @@ const GradientBar = (props) => {
                   tick={{ fontSize: 12, fill: '#64748b' }}
                 />
                 <Tooltip
-                  content={<CustomTooltip valueFormatter={(value) => value.toLocaleString()} />}
-                />
-                <Bar
-                  dataKey="planned"
-                  fill="url(#gradient-planned)"
-                  name="Planned Routes"
-                  radius={[4, 4, 0, 0]}
-                  maxBarSize={50}
-                />
-                <Bar
-                  dataKey="activity"
-                  fill="url(#gradient-activity)"
-                  name="Activities"
-                  radius={[4, 4, 0, 0]}
-                  maxBarSize={50}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
-
-        {/* Activity by Date Chart */}
-        <Card className="p-6 bg-white border-gray-200/50 chart-container">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h3 className="text-lg font-semibold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
-                Activity by Date
-              </h3>
-              <p className="text-sm text-muted-foreground">Daily activity trends with status breakdown</p>
-            </div>
-            <div className="flex items-center gap-4 text-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded bg-gradient-to-r from-emerald-500 to-emerald-600"></div>
-                <span className="text-muted-foreground">Approved</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded bg-gradient-to-r from-amber-500 to-amber-600"></div>
-                <span className="text-muted-foreground">Pending</span>
-              </div>
-              {isSuperAdmin() && (
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded bg-gradient-to-r from-red-500 to-red-600"></div>
-                  <span className="text-muted-foreground">Rejected</span>
-                </div>
-              )}
-            </div>
-          </div>
-          <div className="h-96">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={analyticsData.activity_by_date} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                <defs>
-                  <linearGradient id="gradient-approved-bar" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#10b981" stopOpacity={1}/>
-                    <stop offset="100%" stopColor="#059669" stopOpacity={0.8}/>
-                  </linearGradient>
-                  <linearGradient id="gradient-pending-bar" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#f59e0b" stopOpacity={1}/>
-                    <stop offset="100%" stopColor="#d97706" stopOpacity={0.8}/>
-                  </linearGradient>
-                  <linearGradient id="gradient-rejected-bar" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#ef4444" stopOpacity={1}/>
-                    <stop offset="100%" stopColor="#dc2626" stopOpacity={0.8}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" strokeOpacity={0.5} />
-                <XAxis
-                  dataKey="date"
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fontSize: 12, fill: '#64748b' }}
-                />
-                <YAxis
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fontSize: 12, fill: '#64748b' }}
-                />
-                <Tooltip
                   content={<CustomTooltip
-                    labelFormatter={(label) => `Date: ${label}`}
-                    valueFormatter={(value) => `${value} activities`}
+                    labelFormatter={(label) => `Date: ${new Date(label).toLocaleDateString()}`}
+                    valueFormatter={(value, name) => [value.toLocaleString(), name]}
                   />}
                 />
-                <Bar
-                  dataKey="approved"
-                  fill="url(#gradient-approved-bar)"
-                  name="Approved"
-                  radius={[4, 4, 0, 0]}
-                  maxBarSize={30}
+                <Area
+                  type="monotone"
+                  dataKey="total_sessions"
+                  stroke="#3b82f6"
+                  fill="url(#gradient-sessions)"
+                  strokeWidth={2}
+                  name="Sessions"
                 />
-                <Bar
-                  dataKey="pending"
-                  fill="url(#gradient-pending-bar)"
-                  name="Pending"
-                  radius={[4, 4, 0, 0]}
-                  maxBarSize={30}
+                <Line
+                  type="monotone"
+                  dataKey="photos_captured"
+                  stroke="#10b981"
+                  strokeWidth={2}
+                  name="Photos"
+                  dot={{ fill: '#10b981', strokeWidth: 2, r: 4 }}
                 />
-                {isSuperAdmin() && (
-                  <Bar
-                    dataKey="rejected"
-                    fill="url(#gradient-rejected-bar)"
-                    name="Rejected"
-                    radius={[4, 4, 0, 0]}
-                    maxBarSize={30}
-                  />
-                )}
-              </BarChart>
+                <Line
+                  type="monotone"
+                  dataKey="feedback_received"
+                  stroke="#8b5cf6"
+                  strokeWidth={2}
+                  name="Feedback"
+                  dot={{ fill: '#8b5cf6', strokeWidth: 2, r: 4 }}
+                />
+              </LineChart>
             </ResponsiveContainer>
           </div>
         </Card>
 
-        {/* Pie Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 chart-container">
-          {/* By Walls */}
-          <Card className="p-6 bg-white border-gray-200/50 hover:shadow-xl transition-all duration-300">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
-                <PieChartIcon className="w-5 h-5 text-white" />
-              </div>
+        {/* Charts Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Promoter Activity Status */}
+          <Card className="p-6 bg-white border-gray-200/50">
+            <div className="flex items-center justify-between mb-6">
               <div>
-                <h3 className="text-lg font-semibold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                  Approved vs Planned Walls
+                <h3 className="text-lg font-semibold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                  Activity Status Distribution
                 </h3>
-                <p className="text-xs text-muted-foreground">Completion percentage vs planned walls</p>
+                <p className="text-sm text-muted-foreground">Breakdown of promoter session statuses</p>
               </div>
             </div>
-            <div className="h-64">
+            <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <defs>
-                    {analyticsData.pie_charts.by_walls.map((entry, index) => (
-                      <radialGradient key={index} id={`gradient-walls-${index}`} cx="50%" cy="50%" r="50%">
-                        <stop offset="0%" stopColor={entry.color} stopOpacity={1}/>
-                        <stop offset="100%" stopColor={entry.color} stopOpacity={0.8}/>
-                      </radialGradient>
+                    {analyticsData.promoter_activity_data.activity_by_status.map((entry, index) => (
+                      <linearGradient key={`gradient-${index}`} id={`statusGradient${index}`} x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0%" stopColor={['#10b981', '#f59e0b', '#ef4444', '#6b7280'][index % 4]} stopOpacity={1}/>
+                        <stop offset="100%" stopColor={['#059669', '#d97706', '#dc2626', '#4b5563'][index % 4]} stopOpacity={0.8}/>
+                      </linearGradient>
                     ))}
                   </defs>
                   <Pie
-                    data={analyticsData.pie_charts.by_walls}
+                    data={analyticsData.promoter_activity_data.activity_by_status}
                     cx="50%"
                     cy="50%"
-                    innerRadius={70}
-                    outerRadius={110}
-                    paddingAngle={3}
+                    innerRadius={40}
+                    outerRadius={120}
+                    paddingAngle={2}
                     dataKey="value"
-                    animationBegin={0}
-                    animationDuration={800}
+                    fill={`url(#statusGradient0)`}
                   >
-                    {analyticsData.pie_charts.by_walls.map((entry, index) => (
+                    {analyticsData.promoter_activity_data.activity_by_status.map((entry, index) => (
                       <Cell
                         key={`cell-${index}`}
-                        fill={`url(#gradient-walls-${index})`}
-                        stroke={entry.color}
-                        strokeWidth={2}
+                        fill={`url(#statusGradient${index})`}
                       />
                     ))}
                   </Pie>
-                  <Tooltip
-                    content={<CustomTooltip valueFormatter={(value) => `${value} walls`} />}
-                  />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend />
                 </PieChart>
               </ResponsiveContainer>
-            </div>
-            <div className="mt-4 space-y-3">
-              {analyticsData.pie_charts.by_walls.map((entry, index) => (
-                <div key={index} className="flex items-center justify-between p-2 rounded-lg bg-gray-50/50 dark:bg-gray-800/50 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-4 h-4 rounded-full border-2 border-white shadow-md"
-                      style={{ backgroundColor: entry.color }}
-                    ></div>
-                    <span className="text-sm font-medium">{entry.name}</span>
-                  </div>
-                  <span className="text-sm font-bold text-primary">{entry.value}</span>
-                </div>
-              ))}
             </div>
           </Card>
 
-          {/* By Villages */}
-          <Card className="p-6 bg-white border-gray-200/50 hover:shadow-xl transition-all duration-300">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center">
-                <MapPin className="w-5 h-5 text-white" />
-              </div>
+          {/* Feedback Ratings Distribution */}
+          <Card className="p-6 bg-white border-gray-200/50">
+            <div className="flex items-center justify-between mb-6">
               <div>
-                <h3 className="text-lg font-semibold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent">
-                  Top 5 Villages
+                <h3 className="text-lg font-semibold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
+                  Feedback Ratings
                 </h3>
-                <p className="text-xs text-muted-foreground">By activity percentage</p>
+                <p className="text-sm text-muted-foreground">Customer experience ratings distribution</p>
               </div>
             </div>
-            <div className="h-64 relative">
+            <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
+                <BarChart data={analyticsData.feedback_data.rating_distribution} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                   <defs>
-                    {analyticsData.pie_charts.by_villages.data.map((entry, index) => (
-                      <radialGradient key={index} id={`gradient-villages-${index}`} cx="50%" cy="50%" r="50%">
-                        <stop offset="0%" stopColor={entry.color} stopOpacity={1}/>
-                        <stop offset="100%" stopColor={entry.color} stopOpacity={0.8}/>
-                      </radialGradient>
-                    ))}
+                    <linearGradient id="ratingGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#f59e0b" stopOpacity={1}/>
+                      <stop offset="100%" stopColor="#d97706" stopOpacity={0.8}/>
+                    </linearGradient>
                   </defs>
-                  <Pie
-                    data={analyticsData.pie_charts.by_villages.data}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={70}
-                    outerRadius={110}
-                    paddingAngle={3}
-                    dataKey="value"
-                    animationBegin={200}
-                    animationDuration={800}
-                  >
-                    {analyticsData.pie_charts.by_villages.data.map((entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={`url(#gradient-villages-${index})`}
-                        stroke={entry.color}
-                        strokeWidth={2}
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    content={<CustomTooltip
-                      valueFormatter={(value, name, props) => {
-                        if (props && props.payload && props.payload.percentage) {
-                          return [`${props.payload.percentage}% (${value} activities)`, name];
-                        }
-                        return [`${value} activities`, name];
-                      }}
-                    />}
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" strokeOpacity={0.5} />
+                  <XAxis
+                    dataKey="rating"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 11, fill: '#64748b' }}
                   />
-                </PieChart>
+                  <YAxis
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 12, fill: '#64748b' }}
+                  />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Bar
+                    dataKey="count"
+                    fill="url(#ratingGradient)"
+                    radius={[4, 4, 0, 0]}
+                    maxBarSize={50}
+                  />
+                </BarChart>
               </ResponsiveContainer>
-              {/* Center Total Count */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-gray-900">{analyticsData.pie_charts.by_villages.total_count}</div>
-                  <div className="text-xs text-gray-500 font-medium">Total Activities</div>
-                </div>
-              </div>
-            </div>
-            <div className="mt-4 space-y-2 max-h-32 overflow-y-auto custom-scrollbar">
-              {analyticsData.pie_charts.by_villages.data.map((entry, index) => (
-                <div key={index} className="flex items-center justify-between p-2 rounded-lg bg-gray-50/50 hover:bg-gray-100/50 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-4 h-4 rounded-full border-2 border-white shadow-md"
-                      style={{ backgroundColor: entry.color }}
-                    ></div>
-                    <span className="text-sm font-medium truncate max-w-24">{entry.name}</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-sm font-bold text-primary">{entry.percentage}%</span>
-                    <div className="text-xs text-gray-500">({entry.value})</div>
-                  </div>
-                </div>
-              ))}
             </div>
           </Card>
 
-          {/* Product Type Distribution */}
-          <Card className="p-6 bg-white border-gray-200/50 hover:shadow-xl transition-all duration-300">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center">
-                <Target className="w-5 h-5 text-white" />
-              </div>
+          {/* Top Active Promoters */}
+          <Card className="p-6 bg-white border-gray-200/50">
+            <div className="flex items-center justify-between mb-6">
               <div>
-                <h3 className="text-lg font-semibold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-                  Insurance Type Distribution
+                <h3 className="text-lg font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                  Top Active Promoters
                 </h3>
-                <p className="text-xs text-muted-foreground">3 insurance categories breakdown</p>
+                <p className="text-sm text-muted-foreground">Most engaged promoters by session count</p>
               </div>
             </div>
-            <div className="h-64 relative">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <defs>
-                    {getProductTypeColors(analyticsData.pie_charts.by_brands).map((entry, index) => (
-                      <radialGradient key={index} id={`gradient-product-${index}`} cx="50%" cy="50%" r="50%">
-                        <stop offset="0%" stopColor={entry.color} stopOpacity={1}/>
-                        <stop offset="100%" stopColor={entry.color} stopOpacity={0.7}/>
-                      </radialGradient>
-                    ))}
-                  </defs>
-                  <Pie
-                    data={getProductTypeColors(analyticsData.pie_charts.by_brands)}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={100}
-                    paddingAngle={5}
-                    dataKey="value"
-                    animationBegin={400}
-                    animationDuration={1000}
-                    startAngle={90}
-                    endAngle={450}
-                  >
-                    {getProductTypeColors(analyticsData.pie_charts.by_brands).map((entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={`url(#gradient-product-${index})`}
-                        stroke="#ffffff"
-                        strokeWidth={3}
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    content={<CustomTooltip
-                      valueFormatter={(value, name, props) => {
-                        const total = getProductTypeColors(analyticsData.pie_charts.by_brands).reduce((sum, item) => sum + item.value, 0);
-                        const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                        return [`${percentage}% (${value} activities)`, name];
-                      }}
-                    />}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-              {/* Center Total Count */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="text-center">
-                  <div className="text-xl font-bold text-gray-900">
-                    {getProductTypeColors(analyticsData.pie_charts.by_brands).reduce((sum, item) => sum + item.value, 0)}
-                  </div>
-                  <div className="text-xs text-gray-500 font-medium">Total Products</div>
-                </div>
-              </div>
-            </div>
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              {getProductTypeColors(analyticsData.pie_charts.by_brands).map((entry, index) => {
-                const total = getProductTypeColors(analyticsData.pie_charts.by_brands).reduce((sum, item) => sum + item.value, 0);
-                const percentage = total > 0 ? ((entry.value / total) * 100).toFixed(1) : 0;
-                return (
-                  <div key={index} className="flex items-center gap-3 p-3 rounded-xl bg-gray-50/80 hover:bg-gray-100/80 transition-all duration-200 hover:shadow-md">
-                    <div
-                      className="w-5 h-5 rounded-full border-2 border-white shadow-lg flex-shrink-0"
-                      style={{ backgroundColor: entry.color }}
-                    ></div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-semibold text-gray-900 truncate">{entry.name}</div>
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="font-bold text-primary">{percentage}%</span>
-                        <span className="text-gray-500">({entry.value})</span>
-                      </div>
+            <div className="space-y-4 max-h-80 overflow-y-auto">
+              {analyticsData.promoter_activity_data.top_promoters.map((promoter, index) => (
+                <div key={index} className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                      #{index + 1}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900">{promoter.promoter_name}</p>
+                      <p className="text-sm text-gray-600">{promoter.state}</p>
                     </div>
                   </div>
-                );
-              })}
+                  <div className="text-right">
+                    <p className="font-semibold text-indigo-600">{promoter.sessions} sessions</p>
+                    <p className="text-sm text-gray-600">{promoter.photos} photos</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          {/* Activity by State */}
+          <Card className="p-6 bg-white border-gray-200/50">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="text-lg font-semibold bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent">
+                  Activity by State
+                </h3>
+                <p className="text-sm text-muted-foreground">Geographic distribution of promoter activities</p>
+              </div>
+            </div>
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={analyticsData.promoter_activity_data.activity_by_state} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+                  <defs>
+                    <linearGradient id="stateGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#0d9488" stopOpacity={1}/>
+                      <stop offset="100%" stopColor="#0f766e" stopOpacity={0.8}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" strokeOpacity={0.5} />
+                  <XAxis
+                    dataKey="state"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 11, fill: '#64748b' }}
+                    angle={-45}
+                    textAnchor="end"
+                    height={60}
+                    interval={0}
+                  />
+                  <YAxis
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 12, fill: '#64748b' }}
+                  />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Bar
+                    dataKey="activities"
+                    fill="url(#stateGradient)"
+                    radius={[4, 4, 0, 0]}
+                    maxBarSize={50}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </Card>
         </div>
         </div>
       </div>
 
-      {/* Route Plan Dialog */}
       <RoutePlanDialog
         isOpen={isRoutePlanDialogOpen}
         onClose={() => setIsRoutePlanDialogOpen(false)}

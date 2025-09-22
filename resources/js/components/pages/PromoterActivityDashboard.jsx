@@ -372,7 +372,7 @@ const PromoterActivityDashboard = () => {
                                     {selectedPhotos.map((photo) => (
                                         <div key={photo.id} className="relative">
                                             <img
-                                                src={photo.url || `/storage/${photo.file_path}`}
+                                                src={photo.url || (photo.file_path.startsWith('http') ? photo.file_path : `/storage/${photo.file_path}`)}
                                                 alt={photo.description || 'Activity photo'}
                                                 className="w-full h-48 object-cover rounded-lg border border-gray-200"
                                             />

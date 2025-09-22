@@ -456,7 +456,7 @@ class PromoterActivityController extends Controller
                     foreach ($photosData as $photoData) {
                         // Create unique identifier for photo to prevent duplicates
                         $photoIdentifier = md5($photoData['s3_url'] . $photoData['captured_at'] ?? now());
-                        
+
                         $photo = PromoterActivityPhoto::updateOrCreate(
                             [
                                 'promoter_activity_id' => $activity->id,

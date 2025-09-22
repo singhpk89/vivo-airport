@@ -194,7 +194,7 @@ const PromoterActivityDetails = () => {
                         <div className="aspect-square bg-gray-100 rounded-lg border border-gray-200 overflow-hidden shadow-md hover:shadow-lg transition-shadow">
                             {photo.url || photo.file_path ? (
                                 <img
-                                    src={photo.url || `/storage/${photo.file_path}`}
+                                    src={photo.url || (photo.file_path.startsWith('http') ? photo.file_path : `/storage/${photo.file_path}`)}
                                     alt={photo.description || `${photo.photo_type} photo`}
                                     className="w-full h-full object-cover"
                                     onError={(e) => {
@@ -533,7 +533,7 @@ const PromoterActivityDetails = () => {
                             <div className="aspect-auto max-h-[70vh] bg-gray-100 flex items-center justify-center">
                                 {selectedPhoto.url || selectedPhoto.file_path ? (
                                     <img
-                                        src={selectedPhoto.url || `/storage/${selectedPhoto.file_path}`}
+                                        src={selectedPhoto.url || (selectedPhoto.file_path.startsWith('http') ? selectedPhoto.file_path : `/storage/${selectedPhoto.file_path}`)}
                                         alt={selectedPhoto.description || `${selectedPhoto.photo_type} photo`}
                                         className="max-w-full max-h-full object-contain"
                                         onError={(e) => {
