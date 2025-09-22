@@ -130,7 +130,7 @@ const navigationItems = [
         title: 'Promoter Activity',
         url: '/admin/promoter-activity',
         icon: Activity,
-        permission: 'users.view',
+        permission: 'promoters.view',
         menuKey: 'promoter-activity'
       },
       {

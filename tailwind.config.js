@@ -99,11 +99,7 @@ export default {
       fontFamily: {
         sans: [
           "Vivo",
-          "system-ui",
-          "-apple-system",
-          "BlinkMacSystemFont",
-          "Segoe UI",
-          "sans-serif"
+          "sans-serif"  // Minimal fallback for strict branding compliance
         ],
         mono: [
           "JetBrains Mono",
