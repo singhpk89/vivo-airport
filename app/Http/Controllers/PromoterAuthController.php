@@ -73,6 +73,18 @@ class PromoterAuthController extends Controller
                 }
             }
 
+            // Device binding check: If promoter has an existing device_id and it's different from the current device, deny login
+            if ($request->filled('device_id') && $promoter->device_id && $promoter->device_id !== $request->device_id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This account is already bound to another device. Please use the registered device or contact administrator.',
+                ], 403);
+            }
+
+            // If promoter has no device_id (null), allow login and bind to this device
+            // If promoter already has this device_id, allow login
+            // If no device_id provided in request but promoter has one, still allow (backwards compatibility)
+
             // Create token for mobile app
             $token = $promoter->createToken('mobile-app')->plainTextToken;
 
@@ -476,6 +488,42 @@ class PromoterAuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Logout failed',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Reset device binding for a promoter (Admin only).
+     * This allows a promoter to login on a new device.
+     */
+    public function resetDeviceBinding(Request $request, Promoter $promoter)
+    {
+        try {
+            // Force logout from current device
+            $promoter->tokens()->delete();
+
+            // Reset device binding
+            $promoter->update([
+                'device_id' => null,
+                'device_token' => null,
+                'is_logged_in' => false,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Device binding reset successfully. Promoter can now login on a new device.',
+                'data' => [
+                    'promoter_id' => $promoter->id,
+                    'promoter_name' => $promoter->name,
+                    'reset_at' => now()->toISOString(),
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to reset device binding',
                 'error' => $e->getMessage(),
             ], 500);
         }

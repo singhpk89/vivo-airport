@@ -190,6 +190,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::delete('bulk-delete', [PromoterController::class, 'bulkDelete']);
         Route::put('bulk-update-status', [PromoterController::class, 'bulkUpdateStatus']);
         Route::post('{promoter}/reset-login', [PromoterController::class, 'resetLogin']);
+        Route::post('{promoter}/reset-device', [PromoterAuthController::class, 'resetDeviceBinding']);
         Route::get('{promoter}', [PromoterController::class, 'show']);
         Route::put('{promoter}', [PromoterController::class, 'update']);
         Route::delete('{promoter}', [PromoterController::class, 'destroy']);

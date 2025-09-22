@@ -44,9 +44,16 @@ class PromoterActivityPhoto extends Model
 
     /**
      * Get the full URL of the photo.
+     * Returns S3 URL if it's a full URL, otherwise uses Storage::url()
      */
     public function getUrlAttribute(): string
     {
+        // Check if file_path is already a full URL (S3 URL)
+        if (filter_var($this->file_path, FILTER_VALIDATE_URL)) {
+            return $this->file_path;
+        }
+        
+        // Otherwise, use Laravel Storage for local/relative paths
         return Storage::url($this->file_path);
     }
 

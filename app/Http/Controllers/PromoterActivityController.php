@@ -407,6 +407,18 @@ class PromoterActivityController extends Controller
                 'activities.*.login_time' => 'nullable|date',
                 'activities.*.logout_time' => 'nullable|date',
                 'activities.*.status' => 'required|in:logged_in,logged_out,active',
+                'activities.*.latitude' => 'nullable|numeric|between:-90,90',
+                'activities.*.longitude' => 'nullable|numeric|between:-180,180',
+                'activities.*.photos' => 'nullable|array',
+                'activities.*.photos.*.photo_type' => 'required_with:activities.*.photos|string|in:login,logout,activity,selfie,location',
+                'activities.*.photos.*.s3_url' => 'required_with:activities.*.photos|url',
+                'activities.*.photos.*.file_name' => 'nullable|string|max:255',
+                'activities.*.photos.*.mime_type' => 'nullable|string|max:100',
+                'activities.*.photos.*.file_size' => 'nullable|integer|min:0',
+                'activities.*.photos.*.latitude' => 'nullable|numeric|between:-90,90',
+                'activities.*.photos.*.longitude' => 'nullable|numeric|between:-180,180',
+                'activities.*.photos.*.captured_at' => 'nullable|date',
+                'activities.*.photos.*.description' => 'nullable|string|max:500',
             ]);
 
             if ($validator->fails()) {
@@ -417,9 +429,15 @@ class PromoterActivityController extends Controller
                 ], 422);
             }
 
-            $syncedCount = 0;
+            $syncedActivities = 0;
+            $syncedPhotos = 0;
 
             foreach ($request->activities as $activityData) {
+                // Extract photos data if present
+                $photosData = $activityData['photos'] ?? [];
+                unset($activityData['photos']); // Remove photos from activity data
+
+                // Sync activity record
                 $activity = PromoterActivity::updateOrCreate(
                     [
                         'promoter_id' => $request->promoter_id,
@@ -431,13 +449,50 @@ class PromoterActivityController extends Controller
                     ])
                 );
 
-                $syncedCount++;
+                $syncedActivities++;
+
+                // Sync photos if provided
+                if (!empty($photosData)) {
+                    foreach ($photosData as $photoData) {
+                        // Create unique identifier for photo to prevent duplicates
+                        $photoIdentifier = md5($photoData['s3_url'] . $photoData['captured_at'] ?? now());
+                        
+                        $photo = PromoterActivityPhoto::updateOrCreate(
+                            [
+                                'promoter_activity_id' => $activity->id,
+                                'file_path' => $photoData['s3_url'], // Store S3 URL in file_path
+                            ],
+                            [
+                                'photo_type' => $photoData['photo_type'],
+                                'file_name' => $photoData['file_name'] ?? basename(parse_url($photoData['s3_url'], PHP_URL_PATH)),
+                                'mime_type' => $photoData['mime_type'] ?? 'image/jpeg',
+                                'file_size' => $photoData['file_size'] ?? null,
+                                'latitude' => $photoData['latitude'] ?? null,
+                                'longitude' => $photoData['longitude'] ?? null,
+                                'captured_at' => $photoData['captured_at'] ?? now(),
+                                'description' => $photoData['description'] ?? null,
+                                'is_synced' => true,
+                                'synced_at' => now(),
+                            ]
+                        );
+
+                        $syncedPhotos++;
+                    }
+
+                    // Update activity photo count
+                    $activity->update([
+                        'total_photos_captured' => $activity->photos()->count()
+                    ]);
+                }
             }
 
             return response()->json([
                 'success' => true,
-                'message' => "Synced {$syncedCount} activity records successfully",
-                'data' => ['synced_count' => $syncedCount]
+                'message' => "Synced {$syncedActivities} activity records and {$syncedPhotos} photos successfully",
+                'data' => [
+                    'synced_activities' => $syncedActivities,
+                    'synced_photos' => $syncedPhotos
+                ]
             ], 200);
 
         } catch (\Exception $e) {
