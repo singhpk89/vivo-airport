@@ -27,9 +27,9 @@ const VivoExperienceForm = ({ onBack }) => {
     const [formData, setFormData] = useState({
         // Main survey questions
         overall_experience: '',
-        favorite_section: '',
-        preferred_model: '',
-        souvenir_experience: '',
+        key_drivers: [], // Multi-select for Q2
+        brand_perception: '',
+        brand_image: [], // Multi-select for Q4
         suggestions: '',
 
         // Contact information
@@ -59,24 +59,30 @@ const VivoExperienceForm = ({ onBack }) => {
         { value: 'poor', label: 'Poor' }
     ];
 
-    const sectionOptions = [
-        { value: 'macro_photography', label: 'Macro Photography' },
-        { value: 'photobooth_zone', label: 'Photobooth Zone' },
-        { value: 'photo_gallery', label: 'Photo Gallery' },
-        { value: 'all_above', label: 'All of the Above' }
+    const aspectsOptions = [
+        { value: 'hands_on_demo', label: 'Hands-on product demo' },
+        { value: 'photography_zones', label: 'Photography zones (Macro, Photobooth, etc.)' },
+        { value: 'staff_support', label: 'Staff support & guidance' },
+        { value: 'ambience_design', label: 'Ambience & design' },
+        { value: 'photo_souvenir', label: 'Photo souvenir' },
+        { value: 'other', label: 'Other (please specify)' }
     ];
 
-    const modelOptions = [
-        { value: 'vivo_x200_pro', label: 'Vivo X200 Pro' },
-        { value: 'vivo_x200_fe', label: 'Vivo X200 FE' },
-        { value: 'vivo_x_fold5', label: 'Vivo X Fold5' },
-        { value: 'still_exploring', label: "I'm still exploring options" }
+    const perceptionOptions = [
+        { value: 'significantly_improved', label: 'Significantly improved' },
+        { value: 'slightly_improved', label: 'Slightly improved' },
+        { value: 'no_change', label: 'No change' },
+        { value: 'worsened', label: 'Worsened' }
     ];
 
-    const souvenirOptions = [
-        { value: 'yes', label: 'Yes' },
-        { value: 'somewhat', label: 'Somewhat' },
-        { value: 'no', label: 'No' }
+    const brandImageOptions = [
+        { value: 'innovative_future_ready', label: 'Innovative & future-ready' },
+        { value: 'premium_aspirational', label: 'Premium & aspirational' },
+        { value: 'approachable_friendly', label: 'Approachable & friendly' },
+        { value: 'modern_trendy', label: 'Modern & trendy' },
+        { value: 'reliable_trustworthy', label: 'Reliable & trustworthy' },
+        { value: 'no_clear_image', label: 'No clear brand image / confusing' },
+        { value: 'other', label: 'Other (please specify)' }
     ];
 
     // Load promoters on component mount
@@ -171,9 +177,9 @@ const VivoExperienceForm = ({ onBack }) => {
                 // Reset form
                 setFormData({
                     overall_experience: '',
-                    favorite_section: '',
-                    preferred_model: '',
-                    souvenir_experience: '',
+                    key_drivers: [],
+                    brand_perception: '',
+                    brand_image: [],
                     suggestions: '',
                     visitor_name: '',
                     visitor_email: '',
@@ -233,6 +239,62 @@ const VivoExperienceForm = ({ onBack }) => {
         );
     };
 
+    const renderMultiSelectOptions = (options, selectedValues, fieldName, maxSelections = 2) => {
+        const handleToggleOption = (optionValue) => {
+            const currentSelected = selectedValues || [];
+
+            if (currentSelected.includes(optionValue)) {
+                // Remove if already selected
+                const updatedValues = currentSelected.filter(val => val !== optionValue);
+                handleInputChange(fieldName, updatedValues);
+            } else if (currentSelected.length < maxSelections) {
+                // Add if under limit
+                const updatedValues = [...currentSelected, optionValue];
+                handleInputChange(fieldName, updatedValues);
+            }
+            // Do nothing if limit reached and trying to add
+        };
+
+        return (
+            <div className="space-y-3">
+                {options.map((option) => {
+                    const isSelected = selectedValues && selectedValues.includes(option.value);
+                    const canSelect = !selectedValues || selectedValues.length < maxSelections || isSelected;
+
+                    return (
+                        <div
+                            key={option.value}
+                            onClick={() => canSelect && handleToggleOption(option.value)}
+                            className={`
+                                flex items-center p-3 border rounded-lg transition-all
+                                ${canSelect ? 'cursor-pointer hover:border-blue-500 hover:bg-blue-50' : 'cursor-not-allowed opacity-50'}
+                                ${isSelected
+                                    ? 'border-blue-500 bg-blue-50'
+                                    : 'border-gray-200 bg-white'
+                                }
+                            `}
+                        >
+                            <div className={`w-5 h-5 border-2 mr-3 flex items-center justify-center
+                                ${isSelected
+                                    ? 'border-blue-500 bg-blue-500'
+                                    : 'border-gray-300'
+                                }`}
+                            >
+                                {isSelected && (
+                                    <CheckCircle className="w-3 h-3 text-white" />
+                                )}
+                            </div>
+                            <span className="text-gray-900 font-medium">{option.label}</span>
+                        </div>
+                    );
+                })}
+                <p className="text-sm text-gray-500 mt-2">
+                    Select up to {maxSelections} options. {selectedValues ? selectedValues.length : 0}/{maxSelections} selected.
+                </p>
+            </div>
+        );
+    };
+
     return (
         <div className="p-6 max-w-4xl mx-auto">
             {/* Header */}
@@ -286,10 +348,10 @@ const VivoExperienceForm = ({ onBack }) => {
                     <div className="space-y-4">
                         <div>
                             <h2 className="text-lg font-semibold text-gray-900 mb-2">
-                                Question 1: Overall Experience (Optional)
+                                Q1. (Overall Experience)
                             </h2>
                             <p className="text-gray-600 mb-4">
-                                How would you rate your overall experience at the Xperience Studio by Vivo?
+                                How would you rate your experience at the Xperience Studio by vivo?
                             </p>
                         </div>
 
@@ -301,62 +363,62 @@ const VivoExperienceForm = ({ onBack }) => {
                     </div>
                 </Card>
 
-                {/* Question 2: Favorite Section */}
+                {/* Question 2: Key Drivers of Experience */}
                 <Card className="p-6">
                     <div className="space-y-4">
                         <div>
                             <h2 className="text-lg font-semibold text-gray-900 mb-2">
-                                Question 2: Favorite Section (Optional)
+                                Q2. (Key Drivers of Experience)
                             </h2>
                             <p className="text-gray-600 mb-4">
-                                Which section did you enjoy the most?
+                                Which aspects influenced your experience the most? (Select up to 2)
                             </p>
                         </div>
 
-                        {renderSimpleOptions(sectionOptions, formData.favorite_section, 'favorite_section')}
+                        {renderMultiSelectOptions(aspectsOptions, formData.key_drivers || [], 'key_drivers', 2)}
 
-                        {errors.favorite_section && (
-                            <p className="text-red-600 text-sm mt-2">{errors.favorite_section}</p>
+                        {errors.key_drivers && (
+                            <p className="text-red-600 text-sm mt-2">{errors.key_drivers}</p>
                         )}
                     </div>
                 </Card>
 
-                {/* Question 3: Vivo Model Preference */}
+                {/* Question 3: Brand Perception Shift */}
                 <Card className="p-6">
                     <div className="space-y-4">
                         <div>
                             <h2 className="text-lg font-semibold text-gray-900 mb-2">
-                                Question 3: Vivo Model Preference (Optional)
+                                Q3. (Brand Perception Shift)
                             </h2>
                             <p className="text-gray-600 mb-4">
-                                Which of these Vivo flagship models excites you the most as a potential next smartphone?
+                                After visiting the Studio, how has your perception of vivo as a brand changed?
                             </p>
                         </div>
 
-                        {renderSimpleOptions(modelOptions, formData.preferred_model, 'preferred_model')}
+                        {renderSimpleOptions(perceptionOptions, formData.brand_perception, 'brand_perception')}
 
-                        {errors.preferred_model && (
-                            <p className="text-red-600 text-sm mt-2">{errors.preferred_model}</p>
+                        {errors.brand_perception && (
+                            <p className="text-red-600 text-sm mt-2">{errors.brand_perception}</p>
                         )}
                     </div>
                 </Card>
 
-                {/* Question 4: Souvenir Experience */}
+                {/* Question 4: Brand Image */}
                 <Card className="p-6">
                     <div className="space-y-4">
                         <div>
                             <h2 className="text-lg font-semibold text-gray-900 mb-2">
-                                Question 4: Souvenir Experience (Optional)
+                                Q4. (Brand Image)
                             </h2>
                             <p className="text-gray-600 mb-4">
-                                Did you find the photo souvenir experience engaging and memorable?
+                                After visiting the Xperience Studio, which of the following best describes brand vivo for you? (Select up to 2)
                             </p>
                         </div>
 
-                        {renderSimpleOptions(souvenirOptions, formData.souvenir_experience, 'souvenir_experience')}
+                        {renderMultiSelectOptions(brandImageOptions, formData.brand_image || [], 'brand_image', 2)}
 
-                        {errors.souvenir_experience && (
-                            <p className="text-red-600 text-sm mt-2">{errors.souvenir_experience}</p>
+                        {errors.brand_image && (
+                            <p className="text-red-600 text-sm mt-2">{errors.brand_image}</p>
                         )}
                     </div>
                 </Card>
@@ -366,17 +428,17 @@ const VivoExperienceForm = ({ onBack }) => {
                     <div className="space-y-4">
                         <div>
                             <h2 className="text-lg font-semibold text-gray-900 mb-2">
-                                Question 5: Feedback & Suggestions (Optional)
+                                Q5. Suggestions (Open-ended)
                             </h2>
                             <p className="text-gray-600 mb-4">
-                                Any suggestions or feedback to improve the experience?
+                                Any feedback or ideas to make your experience even better?
                             </p>
                         </div>
 
                         <Textarea
                             value={formData.suggestions}
                             onChange={(e) => handleInputChange('suggestions', e.target.value)}
-                            placeholder="Please share your thoughts, suggestions, or any other feedback..."
+                            placeholder="[Text box]"
                             rows={4}
                             className="w-full border-2 border-gray-200 rounded-lg p-3 focus:border-blue-500 focus:outline-none"
                         />

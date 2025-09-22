@@ -192,10 +192,10 @@ Accept: application/json
 ```json
 {
     "overall_experience": "excellent",
-    "favorite_section": "macro_photography",
-    "preferred_model": "vivo_x200_pro",
-    "souvenir_experience": "yes",
-    "suggestions": "Would love to see more interactive demos",
+    "key_drivers": ["hands_on_demo", "photography_zones"],
+    "brand_perception": "significantly_improved",
+    "brand_image": ["innovative_future_ready", "premium_aspirational"],
+    "suggestions": "Amazing experience! Would love to see more interactive demos",
     "visitor_name": "John Doe",
     "visitor_email": "john@example.com",
     "visitor_phone": "+1234567890",
@@ -208,9 +208,9 @@ Accept: application/json
 
 **Field Options:**
 - **overall_experience:** `excellent`, `good`, `average`, `poor`
-- **favorite_section:** `macro_photography`, `photobooth_zone`, `photo_gallery`, `all_above`
-- **preferred_model:** `vivo_x200_pro`, `vivo_x200_fe`, `vivo_x_fold5`, `still_exploring`
-- **souvenir_experience:** `yes`, `somewhat`, `no`
+- **key_drivers:** Array with up to 2 values from: `hands_on_demo`, `photography_zones`, `staff_support`, `ambience_design`, `photo_souvenir`, `other`
+- **brand_perception:** `significantly_improved`, `slightly_improved`, `no_change`, `worsened`
+- **brand_image:** Array with up to 2 values from: `innovative_future_ready`, `premium_aspirational`, `approachable_friendly`, `modern_trendy`, `reliable_trustworthy`, `no_clear_image`, `other`
 - **assisted_by_promoter_id:** Promoter ID who assisted the visitor (use "none" or empty string if no assistance)
 
 **Response (201 - Created):**
@@ -224,10 +224,10 @@ Accept: application/json
         "category": "experience_feedback",
         "subject": "Xperience Studio by Vivo - Visitor Feedback",
         "overall_experience": "excellent",
-        "favorite_section": "macro_photography",
-        "preferred_model": "vivo_x200_pro",
-        "souvenir_experience": "yes",
-        "suggestions": "Would love to see more interactive demos",
+        "key_drivers": ["hands_on_demo", "photography_zones"],
+        "brand_perception": "significantly_improved",
+        "brand_image": ["innovative_future_ready", "premium_aspirational"],
+        "suggestions": "Amazing experience! Would love to see more interactive demos",
         "visitor_name": "John Doe",
         "visitor_email": "john@example.com",
         "visitor_phone": "+1234567890",

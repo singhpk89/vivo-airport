@@ -113,9 +113,17 @@ class FeedbackController extends Controller
     public function storeVivoExperience(Request $request): JsonResponse
     {
         try {
-            // Basic validation - only email format if provided (all fields are optional)
+            // Enhanced validation for updated questions and multi-select fields
             $validator = Validator::make($request->all(), [
                 'visitor_email' => 'nullable|email',
+                'overall_experience' => 'nullable|in:excellent,good,average,poor',
+                'key_drivers' => 'nullable|array|max:2',
+                'key_drivers.*' => 'nullable|in:hands_on_demo,photography_zones,staff_support,ambience_design,photo_souvenir,other',
+                'brand_perception' => 'nullable|in:significantly_improved,slightly_improved,no_change,worsened',
+                'brand_image' => 'nullable|array|max:2',
+                'brand_image.*' => 'nullable|in:innovative_future_ready,premium_aspirational,approachable_friendly,modern_trendy,reliable_trustworthy,no_clear_image,other',
+                'suggestions' => 'nullable|string|max:2000',
+                'assisted_by_promoter_id' => 'nullable|string',
             ]);
 
             if ($validator->fails()) {
@@ -129,6 +137,19 @@ class FeedbackController extends Controller
             // Create Vivo Experience feedback with all provided data
             $feedbackData = $request->all();
 
+            // Handle multi-select arrays - ensure they're properly formatted
+            if (isset($feedbackData['key_drivers']) && is_array($feedbackData['key_drivers'])) {
+                // Remove empty values and limit to 2 selections
+                $feedbackData['key_drivers'] = array_filter($feedbackData['key_drivers']);
+                $feedbackData['key_drivers'] = array_slice($feedbackData['key_drivers'], 0, 2);
+            }
+
+            if (isset($feedbackData['brand_image']) && is_array($feedbackData['brand_image'])) {
+                // Remove empty values and limit to 2 selections
+                $feedbackData['brand_image'] = array_filter($feedbackData['brand_image']);
+                $feedbackData['brand_image'] = array_slice($feedbackData['brand_image'], 0, 2);
+            }
+
             // Set Vivo Experience specific defaults
             $feedbackData['form_type'] = 'vivo_experience';
             $feedbackData['category'] = $feedbackData['category'] ?? 'experience_feedback';
@@ -139,7 +160,7 @@ class FeedbackController extends Controller
             $feedback = Feedback::create($feedbackData);
 
             // Update promoter activity if promoter is assigned
-            if (!empty($feedbackData['assisted_by_promoter_id'])) {
+            if (!empty($feedbackData['assisted_by_promoter_id']) && $feedbackData['assisted_by_promoter_id'] !== 'none') {
                 $today = \Carbon\Carbon::today();
                 $activity = \App\Models\PromoterActivity::where('promoter_id', $feedbackData['assisted_by_promoter_id'])
                     ->where('activity_date', $today)

@@ -29,12 +29,17 @@ class Feedback extends Model
         'is_anonymous',
         'allow_marketing_contact',
 
-        // Vivo Experience specific fields
+        // Vivo Experience specific fields (updated questions)
         'overall_experience',
+        'key_drivers',           // Multi-select array for Q2
+        'brand_perception',      // Q3
+        'brand_image',          // Multi-select array for Q4
+        'suggestions',
+
+        // Legacy fields for backward compatibility
         'favorite_section',
         'preferred_model',
         'souvenir_experience',
-        'suggestions',
 
         // Legacy fields for general feedback compatibility
         'name',
@@ -63,6 +68,8 @@ class Feedback extends Model
         'experience_rating' => 'integer',
         'recommendation_likelihood' => 'integer',
         'responded_at' => 'datetime',
+        'key_drivers' => 'array',    // Multi-select for Q2
+        'brand_image' => 'array',    // Multi-select for Q4
     ];
 
     /**

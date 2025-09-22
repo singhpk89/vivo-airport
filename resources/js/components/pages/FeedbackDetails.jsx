@@ -3,13 +3,17 @@ import {
     ArrowLeft,
     User,
     Mail,
-    Phone,
     Calendar,
     Clock,
     Star,
     Tag,
     AlertCircle,
-    MessageSquare
+    MessageSquare,
+    TrendingUp,
+    Target,
+    Smartphone,
+    CheckCircle2,
+    Users
 } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
@@ -58,11 +62,36 @@ const FeedbackDetails = ({ feedback, onBack }) => {
 
         // Convert technical values to readable format
         const formatMap = {
+            // Q1: Overall Experience
             'excellent': 'Excellent',
             'very_good': 'Very Good',
             'good': 'Good',
             'average': 'Average',
             'poor': 'Poor',
+            
+            // Q2: Key Drivers of Experience (multi-select)
+            'hands_on_demo': 'Hands-on product demo',
+            'photography_zones': 'Photography zones (Macro, Photobooth, etc.)',
+            'staff_support': 'Staff support & guidance',
+            'ambience_design': 'Ambience & design',
+            'photo_souvenir': 'Photo souvenir',
+            'other': 'Other',
+            
+            // Q3: Brand Perception Shift
+            'significantly_improved': 'Significantly improved',
+            'slightly_improved': 'Slightly improved',
+            'no_change': 'No change',
+            'worsened': 'Worsened',
+            
+            // Q4: Brand Image (multi-select)
+            'innovative_future_ready': 'Innovative & future-ready',
+            'premium_aspirational': 'Premium & aspirational',
+            'approachable_friendly': 'Approachable & friendly',
+            'modern_trendy': 'Modern & trendy',
+            'reliable_trustworthy': 'Reliable & trustworthy',
+            'no_clear_image': 'No clear brand image / confusing',
+            
+            // Legacy values for backward compatibility
             'macro_photography': 'Macro Photography',
             'photobooth_zone': 'Photobooth Zone',
             'photo_gallery': 'Photo Gallery',
@@ -79,10 +108,21 @@ const FeedbackDetails = ({ feedback, onBack }) => {
         return formatMap[value] || value;
     };
 
+    const formatMultiSelectValues = (values) => {
+        if (!values || !Array.isArray(values) || values.length === 0) {
+            return 'Not provided';
+        }
+        
+        return values.map(value => formatExperienceValue(value)).join(', ');
+    };
+
     const renderVivoExperienceSection = () => {
-        const hasVivoData = feedback.overall_experience || feedback.favorite_section ||
-                           feedback.preferred_model || feedback.souvenir_experience ||
-                           feedback.suggestions || feedback.experience_rating;
+        const hasVivoData = feedback.overall_experience || feedback.key_drivers ||
+                           feedback.brand_perception || feedback.brand_image ||
+                           feedback.suggestions || feedback.experience_rating ||
+                           // Legacy fields for backward compatibility
+                           feedback.favorite_section || feedback.preferred_model || 
+                           feedback.souvenir_experience;
 
         if (!hasVivoData) {
             return (
@@ -109,15 +149,17 @@ const FeedbackDetails = ({ feedback, onBack }) => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Q1: Overall Experience */}
                     {feedback.overall_experience && (
                         <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
                             <div className="flex items-center gap-3 mb-3">
                                 <div className="p-2 bg-green-100 rounded-lg">
                                     <Star className="h-5 w-5 text-green-600" />
                                 </div>
-                                <h3 className="text-lg font-semibold text-gray-900">Overall Experience</h3>
+                                <h3 className="text-lg font-semibold text-gray-900">Q1. Overall Experience</h3>
                             </div>
                             <div className="pl-10">
+                                <p className="text-sm text-gray-600 mb-2">How would you rate your experience at the Xperience Studio by vivo?</p>
                                 <Badge className="bg-green-100 text-green-800 text-base px-3 py-1">
                                     {formatExperienceValue(feedback.overall_experience)}
                                 </Badge>
@@ -125,13 +167,96 @@ const FeedbackDetails = ({ feedback, onBack }) => {
                         </div>
                     )}
 
-                    {feedback.favorite_section && (
+                    {/* Q2: Key Drivers of Experience (Multi-select) */}
+                    {feedback.key_drivers && feedback.key_drivers.length > 0 && (
+                        <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
+                            <div className="flex items-center gap-3 mb-3">
+                                <div className="p-2 bg-blue-100 rounded-lg">
+                                    <Target className="h-5 w-5 text-blue-600" />
+                                </div>
+                                <h3 className="text-lg font-semibold text-gray-900">Q2. Key Drivers of Experience</h3>
+                            </div>
+                            <div className="pl-10">
+                                <p className="text-sm text-gray-600 mb-3">Which aspects influenced your experience the most?</p>
+                                <div className="flex flex-wrap gap-2">
+                                    {feedback.key_drivers.map((driver, index) => (
+                                        <Badge key={index} className="bg-blue-100 text-blue-800 text-sm px-2 py-1">
+                                            {formatExperienceValue(driver)}
+                                        </Badge>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Q3: Brand Perception Shift */}
+                    {feedback.brand_perception && (
                         <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
                             <div className="flex items-center gap-3 mb-3">
                                 <div className="p-2 bg-purple-100 rounded-lg">
-                                    <Tag className="h-5 w-5 text-purple-600" />
+                                    <TrendingUp className="h-5 w-5 text-purple-600" />
                                 </div>
-                                <h3 className="text-lg font-semibold text-gray-900">Favorite Section</h3>
+                                <h3 className="text-lg font-semibold text-gray-900">Q3. Brand Perception Shift</h3>
+                            </div>
+                            <div className="pl-10">
+                                <p className="text-sm text-gray-600 mb-2">How has your perception of vivo as a brand changed?</p>
+                                <Badge className="bg-purple-100 text-purple-800 text-base px-3 py-1">
+                                    {formatExperienceValue(feedback.brand_perception)}
+                                </Badge>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Q4: Brand Image (Multi-select) */}
+                    {feedback.brand_image && feedback.brand_image.length > 0 && (
+                        <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
+                            <div className="flex items-center gap-3 mb-3">
+                                <div className="p-2 bg-indigo-100 rounded-lg">
+                                    <CheckCircle2 className="h-5 w-5 text-indigo-600" />
+                                </div>
+                                <h3 className="text-lg font-semibold text-gray-900">Q4. Brand Image</h3>
+                            </div>
+                            <div className="pl-10">
+                                <p className="text-sm text-gray-600 mb-3">Which best describes brand vivo for you?</p>
+                                <div className="flex flex-wrap gap-2">
+                                    {feedback.brand_image.map((image, index) => (
+                                        <Badge key={index} className="bg-indigo-100 text-indigo-800 text-sm px-2 py-1">
+                                            {formatExperienceValue(image)}
+                                        </Badge>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Q5: Suggestions */}
+                    {feedback.suggestions && (
+                        <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100 md:col-span-2">
+                            <div className="flex items-center gap-3 mb-3">
+                                <div className="p-2 bg-orange-100 rounded-lg">
+                                    <MessageSquare className="h-5 w-5 text-orange-600" />
+                                </div>
+                                <h3 className="text-lg font-semibold text-gray-900">Q5. Suggestions</h3>
+                            </div>
+                            <div className="pl-10">
+                                <p className="text-sm text-gray-600 mb-3">Any feedback or ideas to make your experience even better?</p>
+                                <div className="bg-gray-50 rounded-lg p-4">
+                                    <p className="text-gray-700 text-base leading-relaxed whitespace-pre-wrap">
+                                        {feedback.suggestions}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Legacy Questions - For Backward Compatibility */}
+                    {feedback.favorite_section && (
+                        <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100 opacity-75">
+                            <div className="flex items-center gap-3 mb-3">
+                                <div className="p-2 bg-gray-100 rounded-lg">
+                                    <Tag className="h-5 w-5 text-gray-600" />
+                                </div>
+                                <h3 className="text-lg font-semibold text-gray-900">Favorite Section (Legacy)</h3>
                             </div>
                             <div className="pl-10">
                                 <p className="text-gray-700 text-base font-medium">
@@ -142,12 +267,12 @@ const FeedbackDetails = ({ feedback, onBack }) => {
                     )}
 
                     {feedback.preferred_model && (
-                        <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
+                        <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100 opacity-75">
                             <div className="flex items-center gap-3 mb-3">
-                                <div className="p-2 bg-blue-100 rounded-lg">
-                                    <Phone className="h-5 w-5 text-blue-600" />
+                                <div className="p-2 bg-gray-100 rounded-lg">
+                                    <Smartphone className="h-5 w-5 text-gray-600" />
                                 </div>
-                                <h3 className="text-lg font-semibold text-gray-900">Preferred Aircraft Model</h3>
+                                <h3 className="text-lg font-semibold text-gray-900">Preferred Model (Legacy)</h3>
                             </div>
                             <div className="pl-10">
                                 <p className="text-gray-700 text-base font-medium">
@@ -158,35 +283,17 @@ const FeedbackDetails = ({ feedback, onBack }) => {
                     )}
 
                     {feedback.souvenir_experience && (
-                        <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
+                        <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100 opacity-75">
                             <div className="flex items-center gap-3 mb-3">
-                                <div className="p-2 bg-orange-100 rounded-lg">
-                                    <Star className="h-5 w-5 text-orange-600" />
+                                <div className="p-2 bg-gray-100 rounded-lg">
+                                    <Star className="h-5 w-5 text-gray-600" />
                                 </div>
-                                <h3 className="text-lg font-semibold text-gray-900">Souvenir Experience</h3>
+                                <h3 className="text-lg font-semibold text-gray-900">Souvenir Experience (Legacy)</h3>
                             </div>
                             <div className="pl-10">
                                 <p className="text-gray-700 text-base font-medium">
                                     {formatExperienceValue(feedback.souvenir_experience)}
                                 </p>
-                            </div>
-                        </div>
-                    )}
-
-                    {feedback.suggestions && (
-                        <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100 md:col-span-2">
-                            <div className="flex items-center gap-3 mb-3">
-                                <div className="p-2 bg-indigo-100 rounded-lg">
-                                    <MessageSquare className="h-5 w-5 text-indigo-600" />
-                                </div>
-                                <h3 className="text-lg font-semibold text-gray-900">Additional Suggestions</h3>
-                            </div>
-                            <div className="pl-10">
-                                <div className="bg-gray-50 rounded-lg p-4 mt-2">
-                                    <p className="text-gray-700 text-base leading-relaxed whitespace-pre-wrap">
-                                        {feedback.suggestions}
-                                    </p>
-                                </div>
                             </div>
                         </div>
                     )}
