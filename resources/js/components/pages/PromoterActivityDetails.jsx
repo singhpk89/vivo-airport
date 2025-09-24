@@ -185,37 +185,34 @@ const PromoterActivityDetails = () => {
 
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {photoList.map((photo, index) => (
-                    <div
-                        key={photo.id}
-                        className="relative group cursor-pointer transform transition-transform hover:scale-105"
-                        onClick={() => openPhotoModal(photo)}
-                    >
-                        <div className="aspect-square bg-gray-100 rounded-lg border border-gray-200 overflow-hidden shadow-md hover:shadow-lg transition-shadow">
-                            {photo.url || photo.file_path ? (
+                {photoList.map((photo, index) => {
+                    // Simple, direct image URL computation
+                    const imageUrl = photo.file_path && photo.file_path.startsWith('http')
+                        ? photo.file_path
+                        : `/storage/${photo.file_path}`;
+
+                    return (
+                        <div
+                            key={photo.id}
+                            className="relative group cursor-pointer transform transition-transform hover:scale-105"
+                            onClick={() => openPhotoModal(photo)}
+                        >
+                            {/* Simple image container */}
+                            <div className="aspect-square bg-gray-200 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
                                 <img
-                                    src={photo.url || (photo.file_path.startsWith('http') ? photo.file_path : `/storage/${photo.file_path}`)}
-                                    alt={photo.description || `${photo.photo_type} photo`}
+                                    src={imageUrl}
+                                    alt={`${photo.photo_type} photo`}
                                     className="w-full h-full object-cover"
                                     onError={(e) => {
-                                        e.target.style.display = 'none';
-                                        e.target.nextSibling.style.display = 'flex';
+                                        console.error('Failed to load image:', imageUrl);
+                                        e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk0YTNiOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlIG5vdCBmb3VuZDwvdGV4dD48L3N2Zz4=';
                                     }}
                                 />
-                            ) : null}
-                            {/* Fallback when image fails to load */}
-                            <div className="w-full h-full flex flex-col items-center justify-center text-gray-400" style={{ display: photo.url || photo.file_path ? 'none' : 'flex' }}>
-                                <div className="text-4xl mb-2">
-                                    {getPhotoTypeIcon(photo.photo_type)}
-                                </div>
-                                <div className="text-sm font-medium capitalize">{photo.photo_type}</div>
                             </div>
-                        </div>
 
-                        {/* Photo overlay with info */}
-                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 rounded-lg transition-opacity flex items-end">
-                            <div className="w-full p-3 text-white transform translate-y-full group-hover:translate-y-0 transition-transform">
-                                <div className="bg-black bg-opacity-75 rounded-md p-2">
+                            {/* Simple photo info overlay */}
+                            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-3 rounded-b-lg">
+                                <div className="text-white">
                                     <div className="font-medium capitalize text-sm">{photo.photo_type}</div>
                                     <div className="text-xs opacity-90">
                                         {new Date(photo.captured_at).toLocaleTimeString('en-US', {
@@ -223,23 +220,18 @@ const PromoterActivityDetails = () => {
                                             minute: '2-digit'
                                         })}
                                     </div>
-                                    {photo.description && (
-                                        <div className="text-xs mt-1 opacity-90 truncate">
-                                            {photo.description}
-                                        </div>
-                                    )}
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Photo type badge */}
-                        <div className="absolute top-2 right-2">
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-white text-gray-700 shadow-sm">
-                                {getPhotoTypeIcon(photo.photo_type)} {photo.photo_type}
-                            </span>
+                            {/* Photo type badge */}
+                            <div className="absolute top-2 right-2">
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-white/90 text-gray-700 shadow-sm">
+                                    {getPhotoTypeIcon(photo.photo_type)}
+                                </span>
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
         );
     };
@@ -516,12 +508,12 @@ const PromoterActivityDetails = () => {
 
             {/* Photo Modal */}
             {photoModalOpen && selectedPhoto && (
-                <div className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-75 flex items-center justify-center p-4">
+                <div className="fixed inset-0 z-50 overflow-y-auto  bg-opacity-75 flex items-center justify-center p-4">
                     <div className="relative max-w-4xl max-h-[90vh] w-full">
                         {/* Close button */}
                         <button
                             onClick={closePhotoModal}
-                            className="absolute top-4 right-4 z-10 bg-black bg-opacity-50 text-white rounded-full p-2 hover:bg-opacity-75 transition-colors"
+                            className="absolute top-4 right-4 z-10  bg-opacity-50 text-white rounded-full p-2 hover:bg-opacity-75 transition-colors"
                         >
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
