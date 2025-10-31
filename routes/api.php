@@ -255,6 +255,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::prefix('feedbacks')->group(function () {
         Route::get('/', [\App\Http\Controllers\FeedbackController::class, 'index']);
         Route::post('/', [\App\Http\Controllers\FeedbackController::class, 'store']);
+        Route::get('export-csv', [\App\Http\Controllers\FeedbackController::class, 'exportCsv']);
+        Route::get('export-vivo-csv', [\App\Http\Controllers\FeedbackController::class, 'exportVivoExperienceCsv']);
         Route::get('{feedback}', [\App\Http\Controllers\FeedbackController::class, 'show']);
         Route::put('{feedback}', [\App\Http\Controllers\FeedbackController::class, 'update']);
         Route::delete('{feedback}', [\App\Http\Controllers\FeedbackController::class, 'destroy']);

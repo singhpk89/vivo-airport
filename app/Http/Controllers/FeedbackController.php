@@ -6,6 +6,7 @@ use App\Models\Feedback;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 class FeedbackController extends Controller
 {
@@ -269,7 +270,7 @@ class FeedbackController extends Controller
             $feedback->update([
                 'admin_response' => $request->admin_response,
                 'responded_at' => now(),
-                'responded_by' => auth()->id(), // Will need authentication
+                'responded_by' => Auth::user() ? Auth::user()->id : null,
                 'status' => 'resolved'
             ]);
 
@@ -304,6 +305,255 @@ class FeedbackController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error deleting feedback',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Export feedbacks as CSV with all filters applied
+     */
+    public function exportCsv(Request $request)
+    {
+        try {
+            // Generate filename with timestamp
+            $timestamp = now()->format('Y-m-d_H-i-s');
+            $filename = "vivo_feedback_export_{$timestamp}.csv";
+
+            // Return streaming response for large datasets
+            return response()->stream(function () use ($request) {
+                // Open output stream
+                $handle = fopen('php://output', 'w');
+
+                // Add UTF-8 BOM for proper Excel encoding
+                fwrite($handle, "\xEF\xBB\xBF");
+
+                // Write CSV headers
+                $headers = [
+                    'ID',
+                    'Subject',
+                    'Form Type',
+                    'Status',
+                    'Priority',
+                    'Category',
+                    'Visitor Name',
+                    'Visitor Email',
+                    'Visitor Phone',
+                    'Visit Date',
+                    'Overall Experience',
+                    'Key Drivers',
+                    'Brand Perception',
+                    'Brand Image',
+                    'Suggestions',
+                    'Favorite Section',
+                    'Preferred Model',
+                    'Souvenir Experience',
+                    'Is Anonymous',
+                    'Allow Marketing Contact',
+                    'Assisted By Promoter',
+                    'Created At',
+                    'Updated At',
+                    'Admin Response',
+                    'Responded At'
+                ];
+
+                fputcsv($handle, $headers);
+
+                // Apply filters and get feedbacks
+                $query = Feedback::query();
+
+                // Apply filters from request
+                if ($request->filled('status') && $request->status !== 'all') {
+                    $query->where('status', $request->status);
+                }
+
+                if ($request->filled('form_type') && $request->form_type !== 'all') {
+                    $query->where('form_type', $request->form_type);
+                }
+
+                if ($request->filled('category') && $request->category !== 'all') {
+                    $query->where('category', $request->category);
+                }
+
+                if ($request->filled('priority') && $request->priority !== 'all') {
+                    $query->where('priority', $request->priority);
+                }
+
+                if ($request->filled('search')) {
+                    $search = $request->search;
+                    $query->where(function ($q) use ($search) {
+                        $q->where('subject', 'like', "%{$search}%")
+                          ->orWhere('message', 'like', "%{$search}%")
+                          ->orWhere('visitor_name', 'like', "%{$search}%")
+                          ->orWhere('visitor_email', 'like', "%{$search}%");
+                    });
+                }
+
+                if ($request->filled('date_from')) {
+                    $query->whereDate('created_at', '>=', $request->date_from);
+                }
+
+                if ($request->filled('date_to')) {
+                    $query->whereDate('created_at', '<=', $request->date_to);
+                }
+
+                // Process in chunks for memory efficiency
+                $query->orderBy('created_at', 'desc')->chunk(500, function ($feedbacks) use ($handle) {
+                    foreach ($feedbacks as $feedback) {
+                        $row = [
+                            $feedback->id,
+                            $feedback->subject,
+                            $feedback->form_type,
+                            $feedback->status,
+                            $feedback->priority,
+                            $feedback->category,
+                            $feedback->visitor_name,
+                            $feedback->visitor_email,
+                            $feedback->visitor_phone,
+                            $feedback->visit_date,
+                            $feedback->overall_experience,
+                            is_array($feedback->key_drivers) ? implode(', ', $feedback->key_drivers) : $feedback->key_drivers,
+                            $feedback->brand_perception,
+                            is_array($feedback->brand_image) ? implode(', ', $feedback->brand_image) : $feedback->brand_image,
+                            $feedback->suggestions,
+                            $feedback->favorite_section,
+                            $feedback->preferred_model,
+                            $feedback->souvenir_experience,
+                            $feedback->is_anonymous ? 'Yes' : 'No',
+                            $feedback->allow_marketing_contact ? 'Yes' : 'No',
+                            $feedback->assisted_by_promoter_id,
+                            $feedback->created_at ? $feedback->created_at->format('Y-m-d H:i:s') : '',
+                            $feedback->updated_at ? $feedback->updated_at->format('Y-m-d H:i:s') : '',
+                            $feedback->admin_response,
+                            $feedback->responded_at ? $feedback->responded_at->format('Y-m-d H:i:s') : ''
+                        ];
+
+                        fputcsv($handle, $row);
+                    }
+                });
+
+                fclose($handle);
+            }, 200, [
+                'Content-Type' => 'text/csv; charset=UTF-8',
+                'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+                'Cache-Control' => 'no-cache, no-store, must-revalidate',
+                'Pragma' => 'no-cache',
+                'Expires' => '0',
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error exporting feedbacks',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Export Vivo Experience feedbacks only as CSV
+     */
+    public function exportVivoExperienceCsv(Request $request)
+    {
+        try {
+            // Generate filename with timestamp
+            $timestamp = now()->format('Y-m-d_H-i-s');
+            $filename = "vivo_experience_feedback_export_{$timestamp}.csv";
+
+            // Return streaming response
+            return response()->stream(function () use ($request) {
+                $handle = fopen('php://output', 'w');
+                fwrite($handle, "\xEF\xBB\xBF");
+
+                // Vivo Experience specific headers
+                $headers = [
+                    'ID',
+                    'Visitor Name',
+                    'Email',
+                    'Phone',
+                    'Visit Date',
+                    'Overall Experience',
+                    'Key Drivers (Top 2)',
+                    'Brand Perception Shift',
+                    'Brand Image (Top 2)',
+                    'Suggestions & Feedback',
+                    'Is Anonymous',
+                    'Allow Marketing Contact',
+                    'Assisted By Promoter ID',
+                    'Status',
+                    'Priority',
+                    'Created Date',
+                    'Admin Response',
+                    'Response Date'
+                ];
+
+                fputcsv($handle, $headers);
+
+                // Get only Vivo Experience feedbacks
+                $query = Feedback::where('form_type', 'vivo_experience');
+
+                // Apply additional filters
+                if ($request->filled('status') && $request->status !== 'all') {
+                    $query->where('status', $request->status);
+                }
+
+                if ($request->filled('search')) {
+                    $search = $request->search;
+                    $query->where(function ($q) use ($search) {
+                        $q->where('visitor_name', 'like', "%{$search}%")
+                          ->orWhere('visitor_email', 'like', "%{$search}%")
+                          ->orWhere('suggestions', 'like', "%{$search}%");
+                    });
+                }
+
+                if ($request->filled('date_from')) {
+                    $query->whereDate('created_at', '>=', $request->date_from);
+                }
+
+                if ($request->filled('date_to')) {
+                    $query->whereDate('created_at', '<=', $request->date_to);
+                }
+
+                $query->orderBy('created_at', 'desc')->chunk(500, function ($feedbacks) use ($handle) {
+                    foreach ($feedbacks as $feedback) {
+                        $row = [
+                            $feedback->id,
+                            $feedback->visitor_name,
+                            $feedback->visitor_email,
+                            $feedback->visitor_phone,
+                            $feedback->visit_date,
+                            $feedback->overall_experience,
+                            is_array($feedback->key_drivers) ? implode(' | ', $feedback->key_drivers) : $feedback->key_drivers,
+                            $feedback->brand_perception,
+                            is_array($feedback->brand_image) ? implode(' | ', $feedback->brand_image) : $feedback->brand_image,
+                            $feedback->suggestions,
+                            $feedback->is_anonymous ? 'Yes' : 'No',
+                            $feedback->allow_marketing_contact ? 'Yes' : 'No',
+                            $feedback->assisted_by_promoter_id ?: 'Not specified',
+                            $feedback->status,
+                            $feedback->priority,
+                            $feedback->created_at ? $feedback->created_at->format('Y-m-d H:i:s') : '',
+                            $feedback->admin_response,
+                            $feedback->responded_at ? $feedback->responded_at->format('Y-m-d H:i:s') : ''
+                        ];
+
+                        fputcsv($handle, $row);
+                    }
+                });
+
+                fclose($handle);
+            }, 200, [
+                'Content-Type' => 'text/csv; charset=UTF-8',
+                'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+                'Cache-Control' => 'no-cache, no-store, must-revalidate',
+                'Pragma' => 'no-cache',
+                'Expires' => '0',
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error exporting Vivo Experience feedbacks',
                 'error' => $e->getMessage()
             ], 500);
         }

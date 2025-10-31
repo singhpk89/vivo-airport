@@ -49,6 +49,7 @@ const FeedbackManagement = ({ onViewFeedback, onCreateVivoExperience }) => {
     const [priorityFilter, setPriorityFilter] = useState('all');
     const [dateRange, setDateRange] = useState('');
     const [filtersOpen, setFiltersOpen] = useState(false);
+    const [exportDropdownOpen, setExportDropdownOpen] = useState(false);
 
     // Pagination
     const [currentPage, setCurrentPage] = useState(1);
@@ -87,6 +88,20 @@ const FeedbackManagement = ({ onViewFeedback, onCreateVivoExperience }) => {
         fetchFeedbacks();
     }, [fetchFeedbacks]);
 
+    // Close export dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (exportDropdownOpen && !event.target.closest('.export-dropdown-container')) {
+                setExportDropdownOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [exportDropdownOpen]);
+
     const handleCreateVivoExperience = useCallback(() => {
         if (onCreateVivoExperience) {
             onCreateVivoExperience();
@@ -98,6 +113,84 @@ const FeedbackManagement = ({ onViewFeedback, onCreateVivoExperience }) => {
             onViewFeedback(feedback);
         }
     }, [onViewFeedback]);
+
+    // Export Functions
+    const exportAllFeedbacks = useCallback(async () => {
+        try {
+            const token = localStorage.getItem('auth_token');
+            const params = new URLSearchParams({
+                status: statusFilter === 'all' ? '' : statusFilter,
+                category: categoryFilter === 'all' ? '' : categoryFilter,
+                priority: priorityFilter === 'all' ? '' : priorityFilter,
+                search: search || '',
+            });
+
+            const url = `/api/feedbacks/export-csv?${params.toString()}`;
+
+            // Create a temporary link to download the file
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', ''); // This will use the filename from the server
+
+            // Add authorization header by creating a blob URL
+            const response = await fetch(url, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'text/csv',
+                },
+            });
+
+            if (response.ok) {
+                const blob = await response.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                link.href = blobUrl;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(blobUrl);
+            } else {
+                throw new Error('Export failed');
+            }
+        } catch (error) {
+            console.error('Error exporting feedbacks:', error);
+            alert('Error exporting feedbacks. Please try again.');
+        }
+    }, [statusFilter, categoryFilter, priorityFilter, search]);
+
+    const exportVivoExperience = useCallback(async () => {
+        try {
+            const token = localStorage.getItem('auth_token');
+            const params = new URLSearchParams({
+                status: statusFilter === 'all' ? '' : statusFilter,
+                search: search || '',
+            });
+
+            const url = `/api/feedbacks/export-vivo-csv?${params.toString()}`;
+
+            const response = await fetch(url, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'text/csv',
+                },
+            });
+
+            if (response.ok) {
+                const blob = await response.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = blobUrl;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(blobUrl);
+            } else {
+                throw new Error('Export failed');
+            }
+        } catch (error) {
+            console.error('Error exporting Vivo Experience feedbacks:', error);
+            alert('Error exporting Vivo Experience feedbacks. Please try again.');
+        }
+    }, [statusFilter, search]);
 
     // Filter and search feedbacks
     const filteredFeedbacks = useMemo(() => {
@@ -249,6 +342,49 @@ const FeedbackManagement = ({ onViewFeedback, onCreateVivoExperience }) => {
                         <BarChart3 className="h-4 w-4" />
                         Analytics
                     </Button>
+
+                    {/* Export Dropdown */}
+                    <div className="relative export-dropdown-container">
+                        <Button
+                            onClick={() => setExportDropdownOpen(!exportDropdownOpen)}
+                            variant="outline"
+                            className="flex items-center gap-2"
+                        >
+                            <Download className="h-4 w-4" />
+                            Export
+                        </Button>
+                        {exportDropdownOpen && (
+                            <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg z-50 border">
+                                <div className="py-1">
+                                    <button
+                                        onClick={() => {
+                                            exportAllFeedbacks();
+                                            setExportDropdownOpen(false);
+                                        }}
+                                        className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                    >
+                                        <Download className="h-4 w-4 mr-2" />
+                                        Export All Feedbacks (CSV)
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            exportVivoExperience();
+                                            setExportDropdownOpen(false);
+                                        }}
+                                        className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                    >
+                                        <Smartphone className="h-4 w-4 mr-2 text-purple-600" />
+                                        Export Vivo Experience (CSV)
+                                    </button>
+                                    <div className="border-t border-gray-100 my-1"></div>
+                                    <div className="px-4 py-2 text-xs text-gray-500">
+                                        Exports respect current filters and search criteria
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
                     <Button
                         onClick={handleCreateVivoExperience}
                         className="bg-purple-600 hover:bg-purple-700 flex items-center gap-2"
