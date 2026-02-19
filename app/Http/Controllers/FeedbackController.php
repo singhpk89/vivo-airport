@@ -398,7 +398,7 @@ class FeedbackController extends Controller
                 }
 
                 // Process in chunks for memory efficiency
-                $query->orderBy('created_at', 'desc')->chunk(500, function ($feedbacks) use ($handle) {
+                $query->orderBy('visit_date', 'desc')->chunk(500, function ($feedbacks) use ($handle) {
                     foreach ($feedbacks as $feedback) {
                         $row = [
                             $feedback->id,
@@ -410,7 +410,7 @@ class FeedbackController extends Controller
                             $feedback->visitor_name,
                             $feedback->visitor_email,
                             $feedback->visitor_phone,
-                            $feedback->visit_date,
+                            $feedback->visit_date ? $feedback->visit_date->format('Y-m-d') : '',
                             $feedback->overall_experience,
                             is_array($feedback->key_drivers) ? implode(', ', $feedback->key_drivers) : $feedback->key_drivers,
                             $feedback->brand_perception,
@@ -514,14 +514,14 @@ class FeedbackController extends Controller
                     $query->whereDate('created_at', '<=', $request->date_to);
                 }
 
-                $query->orderBy('created_at', 'desc')->chunk(500, function ($feedbacks) use ($handle) {
+                $query->orderBy('visit_date', 'desc')->chunk(500, function ($feedbacks) use ($handle) {
                     foreach ($feedbacks as $feedback) {
                         $row = [
                             $feedback->id,
                             $feedback->visitor_name,
                             $feedback->visitor_email,
                             $feedback->visitor_phone,
-                            $feedback->visit_date,
+                            $feedback->visit_date ? $feedback->visit_date->format('Y-m-d') : '',
                             $feedback->overall_experience,
                             is_array($feedback->key_drivers) ? implode(' | ', $feedback->key_drivers) : $feedback->key_drivers,
                             $feedback->brand_perception,
